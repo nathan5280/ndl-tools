@@ -3,14 +3,14 @@ Compare to nested dictionary/list objects.  diff() will return a unix diff like
 list of lines of the jsonified object to help locate the differences.
 """
 import json
-from difflib import Differ, HtmlDiff
+from difflib import Differ as _Differ, HtmlDiff
 from json import JSONEncoder
-from typing import Union, Any, Iterable, Mapping, List, Optional, Type
+from typing import List, Optional, Type
 
 from ndl_tools.sorter import Sorter, NDLElement
 
 
-class CompareResult:
+class DifferResult:
     """
     Result of a compare or diff.   Acts like a bool for testing purposes.
     Provides supporting information for the match.
@@ -24,7 +24,7 @@ class CompareResult:
         return self._match
 
 
-class Comparer:
+class Differ:
     """
     Provides comparision and difference methods for two objects of
     nested dictionary/lists.   The process is to first sort the two objects
@@ -32,7 +32,7 @@ class Comparer:
     """
 
     @staticmethod
-    def compare(test: NDLElement, expected: NDLElement) -> CompareResult:
+    def compare(test: NDLElement, expected: NDLElement) -> DifferResult:
         """
         Compare to nested dictionary/list objects.
         :param test: Test object
@@ -41,12 +41,12 @@ class Comparer:
         """
         sorted_test = Sorter.sorted(test)
         sorted_expected = Sorter.sorted(expected)
-        return CompareResult(sorted_test == sorted_expected, [])
+        return DifferResult(sorted_test == sorted_expected, [])
 
     @staticmethod
     def diff(
         test: NDLElement, expected: NDLElement, cls: Optional[Type[JSONEncoder]] = None
-    ) -> CompareResult:
+    ) -> DifferResult:
         """
         Show the difference of two objects.  Unix like diff results.
         :param test: Test object
@@ -56,14 +56,14 @@ class Comparer:
         """
         sorted_test = Sorter.sorted(test)
         sorted_expected = Sorter.sorted(expected)
-        differ = Differ()
+        differ = _Differ()
         result = differ.compare(
             json.dumps(sorted_test, indent=2, cls=cls).split("\n"),
             json.dumps(sorted_expected, indent=2, cls=cls).split("\n"),
         )
         lines = list(result)
         match = not any([line[0] in ["-", "+", "?"] for line in lines])
-        return CompareResult(match, lines)
+        return DifferResult(match, lines)
 
     @staticmethod
     def html_diff(
