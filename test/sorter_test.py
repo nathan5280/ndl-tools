@@ -8,7 +8,7 @@ from ndl_tools.sorter import (
     Sorter,
     IterableSorter,
     DefaultIterableSorter,
-)
+    NoSortIterableSorter)
 
 
 def test_sorted_iterable():
@@ -64,16 +64,6 @@ def test_list_list():
     l = [[4, 3, 1, 2], []]
     sorted_list = Sorter.sorted(l)
     assert sorted_list == [[], [1, 2, 3, 4]]
-
-
-class NoSortIterableSorter(IterableSorter):
-    def __init__(self, no_sort_names: List[str]):
-        self._no_sort_names = no_sort_names
-
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        if path.parts[-1] in self._no_sort_names:
-            return iterable
-        return sorted(iterable)
 
 
 NO_SORT = {"sort": [2, 1], "no_sort": [2, 1]}
