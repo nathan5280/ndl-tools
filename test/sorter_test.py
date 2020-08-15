@@ -2,13 +2,16 @@ import json
 from pathlib import Path
 from typing import Iterable, List
 
+import pytest
+
 from ndl_tools.sorter import (
     SortedIterable,
     SortedMapping,
     Sorter,
-    IterableSorter,
+    BaseIterableSorter,
     DefaultIterableSorter,
-    NoSortIterableSorter)
+    NoSortIterableSorter,
+    FloatRoundNormalizer)
 
 
 def test_sorted_iterable():
@@ -74,3 +77,11 @@ def test_no_sort():
     sorter = NoSortIterableSorter(no_sort_names=["no_sort"])
     sorted_dict = Sorter.sorted(NO_SORT, sorter=sorter)
     assert json.dumps(sorted_dict) == json.dumps(NO_SORT_RESULT)
+
+
+LEFT_FLOAT = [1.1234]
+
+
+def test_json_encoder_float():
+    result = Sorter.sorted(LEFT_FLOAT, normalizer=FloatRoundNormalizer(places=2))
+    assert result[0] == 1.12

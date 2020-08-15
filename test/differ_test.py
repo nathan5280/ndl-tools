@@ -11,32 +11,8 @@ TEST_DICT = {"b": 2, "l": [4, 3, 1, 2], "a": 1, "d": {"x": 1, "y": 2}, "ld": [{"
 SORTED_DICT = {"a": 1, "b": 2, "d": {"x": 1, "y": 2}, "l": [1, 2, 3, 4], "ld": [{"m": 1, "n": 2}]}
 
 
-def test_compare_dict():
-    match = Differ.compare(TEST_DICT, SORTED_DICT)
-    assert match
-
-
 TEST_LIST = [{"b": 2, "a": 1}, [4, 3, 1, 2]]
 SORTED_LIST = [[1, 2, 3, 4], {"a": 1, "b": 2}]
-
-
-def test_compare_list():
-    match = Differ.compare(TEST_LIST, SORTED_LIST)
-    assert match
-
-
-def test_compare_dict_fail():
-    td = copy.deepcopy(TEST_DICT)
-    td["l"] = []
-    match = Differ.compare(td, SORTED_DICT)
-    assert not match
-
-
-def test_compare_list_fail():
-    tl = copy.deepcopy(TEST_LIST)
-    tl[0] = []
-    match = Differ.compare(tl, SORTED_LIST)
-    assert not match
 
 
 def test_diff_dict():
@@ -78,26 +54,6 @@ def test_json_encoder():
     assert result
 
 
-def test_nested_dict_equal():
-    d1 = {"a": 1, "b": {"x": 1, "y": 2}}
-    d2 = {"a": 1, "b": {"x": 2, "y": 2}}
-    result = Differ.compare(d1, d2)
-    assert not result
-
-    result = Differ.diff(d1, d2)
-    assert not result
-
-
-def test_nested_list_equal():
-    d1 = [1, 2, [1, 2]]
-    d2 = [1, 2, [2, 2]]
-    result = Differ.compare(d1, d2)
-    assert not result
-
-    result = Differ.diff(d1, d2)
-    assert not result
-
-
 def test_html_diff_dict_fail():
     td = copy.deepcopy(TEST_DICT)
     td["l"] = []
@@ -106,14 +62,3 @@ def test_html_diff_dict_fail():
         fp.write(result)
 
 
-LEFT_FLOAT = [1.1]
-RIGHT_FLOAT = [1.1001]
-
-
-@pytest.mark.skip("Need to add full normalizer.")
-def test_json_encoder_float():
-    result = Differ.diff(LEFT_FLOAT, RIGHT_FLOAT)
-    assert not result
-
-    result = Differ.diff(LEFT_FLOAT, RIGHT_FLOAT)
-    assert result
