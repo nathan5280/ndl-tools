@@ -1,14 +1,10 @@
 import json
 from pathlib import Path
-from typing import Iterable, List
-
-import pytest
 
 from ndl_tools.sorter import (
     SortedIterable,
     SortedMapping,
     Sorter,
-    BaseIterableSorter,
     DefaultIterableSorter,
     NoSortIterableSorter,
     FloatRoundNormalizer)

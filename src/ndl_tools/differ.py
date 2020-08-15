@@ -3,11 +3,9 @@ Compare to nested dictionary/list objects.  diff() will return a unix diff like
 list of lines of the jsonified object to help locate the differences.
 """
 import json
-from abc import abstractmethod
 from difflib import Differ as _Differ, HtmlDiff
 from json import JSONEncoder
-from pathlib import Path
-from typing import List, Optional, Type, Any
+from typing import List, Optional, Type
 
 from ndl_tools.sorter import Sorter, NDLElement, BaseIterableSorter, BaseNormalizer
 
@@ -37,8 +35,9 @@ class Differ:
     def diff(
         left: NDLElement,
         right: NDLElement,
-        cls: Optional[Type[JSONEncoder]] = None,
+        cls: Optional[JSONEncoder] = None,
         sorter: Optional[BaseIterableSorter] = None,
+        normalizer: Optional[BaseNormalizer] = None,
     ) -> DifferResult:
         """
         Show the difference of two objects.  Unix like diff results.
@@ -46,10 +45,11 @@ class Differ:
         :param right: Expected object
         :param cls: JSON Encoder if any fields aren't JSON encodable.
         :param sorter: Sorter for iterable elements.
+        :param normalizer: Normalizer for leaf elements.
         :return: True if match.
         """
-        l_sorted = Sorter.sorted(left, sorter=sorter)
-        r_sorted = Sorter.sorted(right, sorter=sorter)
+        l_sorted = Sorter.sorted(left, sorter=sorter, normalizer=normalizer)
+        r_sorted = Sorter.sorted(right, sorter=sorter, normalizer=normalizer)
         differ = _Differ()
         l_json = json.dumps(l_sorted, indent=2, cls=cls)
         r_json = json.dumps(r_sorted, indent=2, cls=cls)
@@ -64,6 +64,7 @@ class Differ:
         right: NDLElement,
         cls: Optional[Type[JSONEncoder]] = None,
         sorter: Optional[BaseIterableSorter] = None,
+        normalizer: Optional[BaseNormalizer] = None,
     ) -> str:
         """
         Show the difference of two objects.  Unix like diff results.
@@ -71,10 +72,11 @@ class Differ:
         :param right: Expected object
         :param cls: JSON Encoder if any fields aren't JSON encodable.
         :param sorter: Sorter for iterable elements.
+        :param normalizer: Normalizer for leaf elements.
         :return: True if match.
         """
-        sorted_test = Sorter.sorted(left, sorter=sorter)
-        sorted_expected = Sorter.sorted(right, sorter=sorter)
+        sorted_test = Sorter.sorted(left, sorter=sorter, normalizer=normalizer)
+        sorted_expected = Sorter.sorted(right, sorter=sorter, normalizer=normalizer)
         differ = HtmlDiff()
         result = differ.make_file(
             json.dumps(sorted_test, indent=2, cls=cls).split("\n"),
