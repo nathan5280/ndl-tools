@@ -3,6 +3,8 @@ import datetime
 from json import JSONEncoder
 from pathlib import Path
 
+import pytest
+
 from ndl_tools.differ import Differ
 
 TEST_DICT = {"b": 2, "l": [4, 3, 1, 2], "a": 1, "d": {"x": 1, "y": 2}, "ld": [{"n": 2, "m": 1}]}
@@ -103,3 +105,15 @@ def test_html_diff_dict_fail():
     with Path(".data/diff.html").open("wt") as fp:
         fp.write(result)
 
+
+LEFT_FLOAT = [1.1]
+RIGHT_FLOAT = [1.1001]
+
+
+@pytest.mark.skip("Need to add full normalizer.")
+def test_json_encoder_float():
+    result = Differ.diff(LEFT_FLOAT, RIGHT_FLOAT)
+    assert not result
+
+    result = Differ.diff(LEFT_FLOAT, RIGHT_FLOAT)
+    assert result

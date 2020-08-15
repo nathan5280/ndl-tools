@@ -1,17 +1,25 @@
 import json
+from pathlib import Path
+from typing import Iterable, List
 
-from ndl_tools.sorter import SortedIterable, SortedMapping, Sorter
+from ndl_tools.sorter import (
+    SortedIterable,
+    SortedMapping,
+    Sorter,
+    IterableSorter,
+    DefaultIterableSorter,
+)
 
 
 def test_sorted_iterable():
     d = [4, 3, 1, 2]
-    s = SortedIterable(d)
+    s = SortedIterable(d, Path(), DefaultIterableSorter())
     assert s == [1, 2, 3, 4]
 
 
 def test_sorted_mapping():
     d = {"b": 2, "a": 1}
-    sorted_dict = SortedMapping(d)
+    sorted_dict = SortedMapping(d, Path(), DefaultIterableSorter())
 
     assert list(sorted_dict.keys()) == ["a", "b"]
 
@@ -56,3 +64,23 @@ def test_list_list():
     l = [[4, 3, 1, 2], []]
     sorted_list = Sorter.sorted(l)
     assert sorted_list == [[], [1, 2, 3, 4]]
+
+
+class NoSortIterableSorter(IterableSorter):
+    def __init__(self, no_sort_names: List[str]):
+        self._no_sort_names = no_sort_names
+
+    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
+        if path.parts[-1] in self._no_sort_names:
+            return iterable
+        return sorted(iterable)
+
+
+NO_SORT = {"sort": [2, 1], "no_sort": [2, 1]}
+NO_SORT_RESULT = {"no_sort": [2, 1], "sort": [1, 2]}
+
+
+def test_no_sort():
+    sorter = NoSortIterableSorter(no_sort_names=["no_sort"])
+    sorted_dict = Sorter.sorted(NO_SORT, sorter=sorter)
+    assert json.dumps(sorted_dict) == json.dumps(NO_SORT_RESULT)
