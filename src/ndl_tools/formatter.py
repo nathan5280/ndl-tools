@@ -7,29 +7,37 @@ from html.parser import HTMLParser
 ADD_FORMAT_ON = "\033[0;32m"
 SUB_FORMAT_ON = "\033[0:31m"
 FORMAT_OFF = "\033[0m"
+FORMAT_EXTRA_CHARS = len(ADD_FORMAT_ON) + len(FORMAT_OFF)
 
 
 class Row:
-    def __init__(self):
+    def __init__(self, max_col_width: int):
+        self.max_col_width = max_col_width
         self.data = list()
 
     def add(self, data: str):
         self.data.append(data.replace("\xa0", " ") if data else data)
 
     def finalize(self):
-        l = self.data[2] if self.data[2] else ""
-        r = self.data[5] if self.data[5] else ""
-        print(f"{l:12} {r:12}")
+        left = self.data[2] if self.data[2] else ""
+        right = self.data[5] if self.data[5] else ""
+
+        left_chars = self.max_col_width + FORMAT_EXTRA_CHARS if FORMAT_OFF in left else self.max_col_width
+        right_chars = self.max_col_width + FORMAT_EXTRA_CHARS if FORMAT_OFF in right else self.max_col_width
+
+        return f"{left:{left_chars}} {right:{right_chars}}"
 
 
 class Formatter(HTMLParser):
-    def __init__(self):
+    def __init__(self, max_col_width: int = 20):
+        self.max_col_width = max_col_width
         self.in_table = False
         self.done = False
         self.row = None
         self.looking_for_data = False
         self.data = None
         self.change_mark = None
+        self.output = list()
         super().__init__()
 
     def handle_starttag(self, tag, attrs):
@@ -37,7 +45,7 @@ class Formatter(HTMLParser):
             self.in_table = True
             return
         if self.in_table and tag == "tr":
-            self.row = Row()
+            self.row = Row(self.max_col_width)
         if self.in_table and tag == "td":
             self.looking_for_data = True
             self.data = None
@@ -56,7 +64,7 @@ class Formatter(HTMLParser):
             self.in_table = False
             return
         if self.in_table and tag == "tr":
-            self.row.finalize()
+            self.output.append(self.row.finalize())
             self.row = None
         if self.in_table and tag == "td":
             self.row.add(self.data)
@@ -69,7 +77,6 @@ class Formatter(HTMLParser):
         if self.looking_for_data:
             self.data = "".join([self.data, data]) if self.data else data
 
-    @staticmethod
-    def format(diff: str):
-        parser = Formatter()
-        parser.feed(diff)
+    def format(self, diff: str):
+        self.feed(diff)
+        return "\n".join(self.output)
