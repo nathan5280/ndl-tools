@@ -1,3 +1,7 @@
+"""
+Quick hack to see what it will take to format the HTML output from the difflib.html_diff() into
+plain text that can be displayed in pytest.
+"""
 from html.parser import HTMLParser
 
 ADD_FORMAT_ON = "\033[0;32m"
