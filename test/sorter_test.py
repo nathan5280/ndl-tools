@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
 
+from ndl_tools.iterable_sorter import DefaultIterableSorter, NoSortIterableSorter
+from ndl_tools.normalizer import FloatRoundNormalizer
 from ndl_tools.sorter import (
     SortedIterable,
     SortedMapping,
     Sorter,
-    DefaultIterableSorter,
-    NoSortIterableSorter,
-    FloatRoundNormalizer)
+)
 
 
 def test_sorted_iterable():

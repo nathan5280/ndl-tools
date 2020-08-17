@@ -3,11 +3,16 @@ Quick hack to see what it will take to format the HTML output from the difflib.h
 plain text that can be displayed in pytest.
 """
 from html.parser import HTMLParser
+from typing import Optional
 
 ADD_FORMAT_ON = "\033[0;32m"
 SUB_FORMAT_ON = "\033[0:31m"
 FORMAT_OFF = "\033[0m"
 FORMAT_EXTRA_CHARS = len(ADD_FORMAT_ON) + len(FORMAT_OFF)
+
+# ToDo: data really needs to be passed as a list.  Then the process of picking off enough charactors
+#       to format to the correct width will be easier.   It will also allow for the correct
+#       format off character to be added if needed.
 
 
 class Row:
@@ -29,7 +34,7 @@ class Row:
 
 
 class Formatter(HTMLParser):
-    def __init__(self, max_col_width: int = 20):
+    def __init__(self, max_col_width: Optional[int] = 20):
         self.max_col_width = max_col_width
         self.in_table = False
         self.done = False

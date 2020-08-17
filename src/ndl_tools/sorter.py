@@ -2,48 +2,13 @@
 Sort nested dictionary/lists.  The sort order isn't really important,
 just that it is consistent.
 """
-from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Union, Mapping, Iterable, Optional, List
+from typing import Any, Union, Mapping, Iterable, Optional
+
+from ndl_tools.iterable_sorter import BaseIterableSorter
+from ndl_tools.normalizer import BaseNormalizer
 
 NDLElement = Union[Mapping, Iterable, Any]
-
-
-class BaseIterableSorter:
-    @abstractmethod
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        pass
-
-
-class DefaultIterableSorter(BaseIterableSorter):
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        return sorted(iterable)
-
-
-class NoSortIterableSorter(BaseIterableSorter):
-    def __init__(self, no_sort_names: List[str]):
-        self._no_sort_names = no_sort_names
-
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        if path.parts[-1] in self._no_sort_names:
-            return iterable
-        return sorted(iterable)
-
-
-class BaseNormalizer:
-    @abstractmethod
-    def normalize(self, element: Any, path: Path) -> Any:
-        pass
-
-
-class FloatRoundNormalizer(BaseNormalizer):
-    def __init__(self, places: int):
-        self._places = places
-
-    def normalize(self, element: Any, path: Path) -> Any:
-        if isinstance(element, float):
-            return round(element, self._places)
-        return element
 
 
 class SortedMapping(dict):
