@@ -57,6 +57,6 @@ def test_chained():
 
 def test_negative():
     matcher = ListLastComponentPathMatcher(["a"])
-    neg_matcher = NegativePathMatcher(matcher)
+    neg_matcher = NegativePathMatcher(path_matcher=matcher)
     assert not neg_matcher.match(A_TEST_PATH)
     assert neg_matcher.match(B_TEST_PATH)

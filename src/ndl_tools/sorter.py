@@ -1,11 +1,14 @@
 """
 Sort nested dictionary/lists.  The sort order isn't really important,
 just that it is consistent.
+
+Alternative IterableSorters can be applied to elements selected by the
+by PathMatchers.
 """
 from pathlib import Path
 from typing import Any, Union, Mapping, Iterable, Optional
 
-from ndl_tools.iterable_sorter import BaseIterableSorter
+from ndl_tools.iterable_sorter import BaseIterableSorter, DefaultIterableSorter
 from ndl_tools.normalizer import BaseNormalizer
 
 NDLElement = Union[Mapping, Iterable, Any]
