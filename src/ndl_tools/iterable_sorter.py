@@ -16,11 +16,11 @@ class BaseIterableSorter:
 
     def sorted(self, iterable: Iterable, path: Path) -> Iterable:
         if self._path_matcher.match(path):
-            return self._sorted(iterable, path)
+            return self._sorted(iterable)
         return self._parent_sorter.sorted(path) if self._parent_sorter else sorted(iterable)
 
     @abstractmethod
-    def _sorted(self, iterable: Iterable, path: Path) -> Iterable:
+    def _sorted(self, iterable: Iterable) -> Iterable:
         pass
 
 
@@ -33,7 +33,7 @@ class DefaultIterableSorter(BaseIterableSorter):
     ):
         super().__init__(parent_sorter, path_matcher)
 
-    def _sorted(self, iterable: Iterable, path: Path) -> Iterable:
+    def _sorted(self, iterable: Iterable) -> Iterable:
         return sorted(iterable)
 
 
@@ -46,5 +46,5 @@ class NoSortIterableSorter(BaseIterableSorter):
     ):
         super().__init__(parent_sorter, path_matcher)
 
-    def _sorted(self, iterable: Iterable, path: Path) -> Iterable:
+    def _sorted(self, iterable: Iterable) -> Iterable:
         return iterable
