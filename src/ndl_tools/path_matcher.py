@@ -14,7 +14,7 @@ from typing import List, Optional
 
 class BasePathMatcher:
     """
-    Base matcher for all matchers.  Implements the chaining logic.
+    Base path matcher implements the chaining logic.
     """
 
     def __init__(self, parent_matcher: Optional["BasePathMatcher"] = None):
