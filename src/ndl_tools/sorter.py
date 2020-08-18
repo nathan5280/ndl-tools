@@ -6,7 +6,7 @@ Alternative IterableSorters can be applied to elements selected by the
 by PathMatchers.
 """
 from pathlib import Path
-from typing import Any, Union, Mapping, Iterable, Optional
+from typing import Any, Union, Mapping, Iterable, Optional, List
 
 from ndl_tools.iterable_sorter import BaseIterableSorter, DefaultIterableSorter
 from ndl_tools.normalizer import BaseNormalizer
@@ -78,12 +78,13 @@ class SortedIterable(list):
         :param sorter: Sorter for iterable elements.
         :param normalizer: Normalizer for leaf elements.
         """
+        sorted_children = [
+            Sorter._sorted(v, path / f"[{i}]", sorter, normalizer)
+            for i, v in enumerate(data)
+        ]
         super().__init__(
             sorter.sorted(
-                [
-                    Sorter._sorted(v, path / f"[{i}]", sorter, normalizer)
-                    for i, v in enumerate(data)
-                ],
+                sorted_children,
                 path,
             )
         )
@@ -120,10 +121,10 @@ class Sorter:
         :param normalizer: Normalizer for leaf elements.
         :return: Sorted object.
         """
-        path = path or Path()
-        if isinstance(data, Mapping):
+        print(path)
+        if isinstance(data, Dict):
             return SortedMapping(data, path, sorter, normalizer)
-        elif isinstance(data, Iterable):
+        elif isinstance(data, List):
             return SortedIterable(data, path, sorter, normalizer)
         else:
             return normalizer.normalize(data, path) if normalizer else data

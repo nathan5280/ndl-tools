@@ -1,7 +1,6 @@
 import copy
 import datetime
 from json import JSONEncoder
-from pathlib import Path
 
 from ndl_tools.differ import Differ
 
@@ -34,8 +33,6 @@ def test_diff_list_fail():
     tl = copy.deepcopy(TEST_LIST)
     tl[0] = []
     result = Differ.diff(tl, SORTED_LIST)
-    for l in result.support:
-        print(l)
     assert not result
 
 
@@ -55,8 +52,7 @@ def test_json_encoder():
 def test_html_diff_dict_fail():
     td = copy.deepcopy(TEST_DICT)
     td["l"] = []
-    result = Differ.html_diff(td, SORTED_DICT)
-    with Path(".data/diff.html").open("wt") as fp:
-        fp.write(result)
-
+    result = Differ.diff(td, SORTED_DICT)
+    assert not result
+    print(result.support)
 

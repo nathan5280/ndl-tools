@@ -3,6 +3,7 @@ Quick hack to see what it will take to format the HTML output from the difflib.h
 plain text that can be displayed in pytest.
 """
 from html.parser import HTMLParser
+from pathlib import Path
 from typing import Optional
 
 ADD_FORMAT_ON = "\033[0;32m"
@@ -43,6 +44,7 @@ class Formatter(HTMLParser):
         self.data = None
         self.change_mark = None
         self.output = list()
+        self.match = True
         super().__init__()
 
     def handle_starttag(self, tag, attrs):
@@ -57,8 +59,10 @@ class Formatter(HTMLParser):
         if self.looking_for_data and tag == "span":
             class_attr = [value for attr, value in attrs if attr == "class"][0]
             if class_attr == "diff_add":
+                self.match = False
                 self.change_mark = ADD_FORMAT_ON
             elif class_attr == "diff_sub":
+                self.match = False
                 self.change_mark = SUB_FORMAT_ON
             else:
                 raise ValueError(class_attr)
@@ -84,4 +88,4 @@ class Formatter(HTMLParser):
 
     def format(self, diff: str):
         self.feed(diff)
-        return "\n".join(self.output)
+        return self.match, "\n".join(self.output)
