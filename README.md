@@ -115,5 +115,55 @@ of them it might be time to think about doing some prework on the NDL before com
 Normalizers are designed to be easily extensible.  Checkout the existing [Normalizers](https://github.com/nathan5280/ndl-tools/blob/develop/src/ndl_tools/normalizer.py)
 You can easily see ways to extend these to support exponential numbers, dates, ...
 
+| Normalizer | Usage |
+| :--- | :---|
+| FloatRoundNormalizer | Round a floating point number to a set number of places. |
+| TodayDateNormalizer | Set the date to datetime.date.today(). |
+| StrTodayDateNormalizer | Convert a string representation of a date to string representation of today.  Useful if one of the NDLs was read from JSON and the dates weren't converted. |
+
+Have some fun building your own Normalizers.   It only takes a few lines in the __init__() and _normalize() methods.
+
 >[!WARNING]
 >If a normalizer was applied to an element, but doesn't actually normalize it, the normalizer should raise NotNormalizedError()
+
+# Selectors
+Selectors like Normalizers can be chained and subclassed.  Again there is an art to figuring out the
+minimum number needed or the minimum that are still clear. 
+
+While this isn't the most efficient way to rewrite the example above that rounds both 'a' and 'b' to 
+one decimal place, it does show how Selectors are chained.
+
+```python
+from ndl_tools import Differ, FloatRoundNormalizer, ListLastComponentSelector
+
+OBJ_1 = {"a": 1.0, "b": 2.01}
+OBJ_2 = {"a": 1.01, "b": 2.011}
+
+
+def selector_chaining_match():
+    differ = Differ()
+
+    a_selector = ListLastComponentSelector(component_names=["a"])
+    b_selector = ListLastComponentSelector(component_names=["b"], parent_selector=a_selector)
+    float_round_normalizer = FloatRoundNormalizer(places=1, selector=b_selector)
+
+    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    assert result
+    print(result.support)
+```
+
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/selector-chaining-pass.png"/>
+
+There are a few selectors out of the box, but you should subclass your own to minimize the complexity
+of your diff code.
+
+| Selector | Usage |
+| :--- | :--- |
+| ListLastComponentSelector | Match the last component in the element path to a list of names. |
+| ListAnyComponentSelector | Match any component in the element path to a list of names.  Good if you want to select a branch and its child elements. |
+| RegExSelector | Match the element path with the RegEx. |
+| NegativeSelector | Inverts the selection of the Selector it wraps. |
+
+# ListSorters
+ListSorters chain and subclass the same as Normalizers.   You should'n really need anything other than 
+the two provided ListSorters, but if you need to the extensibility is there.  

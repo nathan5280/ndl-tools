@@ -49,3 +49,20 @@ def float_two_precision_match():
 def test_float_two_precision_match():
     print()
     float_two_precision_match()
+
+
+def selector_chaining_match():
+    differ = Differ()
+
+    a_selector = ListLastComponentSelector(component_names=["a"])
+    b_selector = ListLastComponentSelector(component_names=["b"], parent_selector=a_selector)
+    float_round_normalizer = FloatRoundNormalizer(places=1, selector=b_selector)
+
+    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    assert result
+    print(result.support)
+
+
+def test_selector_chaining_match():
+    print()
+    selector_chaining_match()
