@@ -8,7 +8,7 @@ from typing import Optional
 
 ADD_FORMAT_ON = "\033[0;32m"
 SUB_FORMAT_ON = "\033[0:31m"
-CHANGE_FORMAT_ON = "\033[0:33m"
+CHANGE_FORMAT_ON = "\033[0:34m"
 FORMAT_OFF = "\033[0m"
 FORMAT_EXTRA_CHARS = len(ADD_FORMAT_ON) + len(FORMAT_OFF)
 

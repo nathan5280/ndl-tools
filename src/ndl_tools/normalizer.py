@@ -88,6 +88,8 @@ class DefaultNormalizer(BaseNormalizer):
         return element
 
 
+# ToDo: Extend this to be smarter about exponential notation
+#       and maybe something that adjusts based on the size or places of number being normalize.
 class FloatRoundNormalizer(BaseNormalizer):
     def __init__(
         self,
@@ -135,3 +137,30 @@ class TodayDateNormalizer(BaseNormalizer):
         if isinstance(element, datetime.date):
             return datetime.date.today()
         raise NotNormalizedError
+
+
+class StrTodayDateNormalizer(BaseNormalizer):
+    def __init__(
+        self,
+        *,
+        parent_normalizer: Optional["BaseNormalizer"] = None,
+        selector: Optional[BaseSelector] = None,
+    ):
+        """
+        Overwrite string representation of a date to today().
+
+        :param parent_normalizer: Optional parent normalizer to run if this normalizer
+            isn't selected by the selector.
+        :param selector: Optional selector to use to select which
+            elements this normalizer runs.
+        """
+        super().__init__(parent_normalizer, selector)
+
+    def _normalize(self, element: Any) -> Any:
+        if isinstance(element, str):
+            try:
+                datetime.date.fromisoformat(element)
+                return datetime.date.today().isoformat()
+            except ValueError:
+                pass
+        raise NotNormalizedError()

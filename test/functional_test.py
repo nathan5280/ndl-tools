@@ -1,57 +1,15 @@
 import datetime
 import json
 from pathlib import Path
-from typing import Optional, Any, List
+from typing import Optional
 
 from ndl_tools.differ import Differ
-from ndl_tools.normalizer import TodayDateNormalizer, BaseNormalizer, FloatRoundNormalizer
+from ndl_tools.normalizer import (
+    TodayDateNormalizer,
+    FloatRoundNormalizer,
+    StrTodayDateNormalizer,
+)
 from ndl_tools.selector import BaseSelector
-from ndl_tools.sorter import Sorter
-
-
-def test_1_data():
-    left_1_data = {"date": datetime.date(1999, 1, 1), "float": 1.0}
-    right_1_data = {"date": datetime.date(1999, 2, 2), "float": 1.001}
-
-    date_normalizer = TodayDateNormalizer
-
-
-def test_sort_johns():
-    sorter = Sorter()
-    with Path(".data/deductible_plan_response.json").open("rt") as fp:
-        data = json.loads(fp.read())
-    data = sorter.sorted(data)
-    with Path(".data/deductible_plan_response_sorted.json").open("wt") as fp:
-        fp.write(json.dumps(data, indent=2))
-
-    with Path(".data/given_deductible_plan_response.json").open("rt") as fp:
-        data = json.loads(fp.read())
-    data = sorter.sorted(data)
-    with Path(".data/given_deductible_plan_response_sorted.json").open("wt") as fp:
-        fp.write(json.dumps(data, indent=2))
-
-
-class StrTodayDateNormalizer(BaseNormalizer):
-    def __init__(
-        self,
-        *,
-        parent_normalizer: Optional["BaseNormalizer"] = None,
-        selector: Optional[BaseSelector] = None,
-    ):
-        """
-        Overwrite string representation of a date to today().
-
-        :param parent_normalizer: Optional parent normalizer to run if this normalizer
-            isn't selected by the selector.
-        :param selector: Optional selector to use to select which
-            elements this normalizer runs.
-        """
-        super().__init__(parent_normalizer, selector)
-
-    def _normalize(self, element: Any) -> Any:
-        if isinstance(element, str):
-            return datetime.date.today().isoformat()
-        return element
 
 
 class DateSelector(BaseSelector):
@@ -77,19 +35,24 @@ class DateSelector(BaseSelector):
         return path.parts[-1].endswith("_date")
 
 
-def test_diff_johns2():
-    sorter = Sorter()
-    with Path(".data/deductible_plan_response.json").open("rt") as fp:
-        data = json.loads(fp.read())
+def test_diff_example_1():
+    data_dpath = Path(__file__).parent
+    with (data_dpath / "data" / "1-left-response.json").open("rt") as fp:
+        left_dpath = json.loads(fp.read())
 
-    with Path(".data/deductible_plan_response2.json").open("rt") as fp:
-        data2 = json.loads(fp.read())
+    with (data_dpath / "data" / "1-right-response.json").open("rt") as fp:
+        right_dpath = json.loads(fp.read())
 
     differ = Differ()
 
+    # Select all fields that the last element name ends with '_date'
     date_selector = DateSelector()
+    # The docments still have their dates as strings.  Run the nomalizer that checks to see
+    # if it can parse the string as a date and convert it to today() as a date string.
     date_normalizer = StrTodayDateNormalizer(selector=date_selector)
-    float_normalizer = FloatRoundNormalizer(4, parent_normalizer=date_normalizer)
+    # Normalize floats to have only 3 significant digits.
+    float_normalizer = FloatRoundNormalizer(3, parent_normalizer=date_normalizer)
 
-    result = differ.diff(data, data2, normalizer=float_normalizer, max_col_width=50)
+    result = differ.diff(left_dpath, right_dpath, normalizer=float_normalizer, max_col_width=50)
+    assert result
     print(result.support)
