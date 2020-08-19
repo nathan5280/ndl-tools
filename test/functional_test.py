@@ -45,7 +45,7 @@ def test_diff_example_1():
 
     # Select all fields that the last element name ends with '_date'
     date_selector = DateSelector()
-    # The docments still have their dates as strings.  Run the nomalizer that checks to see
+    # The documents still have their dates as strings.  Run the nomalizer that checks to see
     # if it can parse the string as a date and convert it to today() as a date string.
     date_normalizer = StrTodayDateNormalizer(selector=date_selector)
     # Normalize floats to have only 3 significant digits.

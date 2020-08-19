@@ -1,4 +1,4 @@
-from .differ import DifferResult, Differ
+from .differ import DiffResult, Differ
 from .list_sorter import BaseListSorter, DefaultListSorter, NoSortListSorter
 from .normalizer import (
     BaseNormalizer,

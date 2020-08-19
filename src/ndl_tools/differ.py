@@ -11,7 +11,7 @@ from .formatter import Formatter
 from .sorter import Sorter, NDLElement, BaseListSorter, BaseNormalizer
 
 
-class DifferResult:
+class DiffResult:
     """
     Result of a compare or diff.   Acts like a bool for testing purposes.
     Provides supporting information for the match.
@@ -40,7 +40,7 @@ class Differ:
         sorter: Optional[BaseListSorter] = None,
         normalizer: Optional[BaseNormalizer] = None,
         max_col_width: Optional[int] = 20,
-    ) -> DifferResult:
+    ) -> DiffResult:
         """
         Show the difference of two objects.  Unix like diff results.
         :param left: Test object
@@ -60,4 +60,4 @@ class Differ:
             json.dumps(sorted_right, indent=2, cls=cls).split("\n"),
         )
         match, support = Formatter(max_col_width=max_col_width).format(result)
-        return DifferResult(match, support)
+        return DiffResult(match, support)
