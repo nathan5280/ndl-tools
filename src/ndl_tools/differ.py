@@ -3,14 +3,15 @@ Compare to nested dictionary/list objects.  diff() will return a unix diff like
 list of lines of the jsonified object to help locate the differences.
 """
 import json
-from difflib import Differ as _Differ, HtmlDiff
+from difflib import HtmlDiff
 from json import JSONEncoder
 from typing import List, Optional, Type
 
-from ndl_tools.sorter import Sorter, NDLElement, BaseIterableSorter, BaseNormalizer
+from .formatter import Formatter
+from .sorter import Sorter, NDLElement, BaseListSorter, BaseNormalizer
 
 
-class DifferResult:
+class DiffResult:
     """
     Result of a compare or diff.   Acts like a bool for testing purposes.
     Provides supporting information for the match.
@@ -35,51 +36,28 @@ class Differ:
     def diff(
         left: NDLElement,
         right: NDLElement,
-        cls: Optional[JSONEncoder] = None,
-        sorter: Optional[BaseIterableSorter] = None,
-        normalizer: Optional[BaseNormalizer] = None,
-    ) -> DifferResult:
-        """
-        Show the difference of two objects.  Unix like diff results.
-        :param left: Test object
-        :param right: Expected object
-        :param cls: JSON Encoder if any fields aren't JSON encodable.
-        :param sorter: Sorter for iterable elements.
-        :param normalizer: Normalizer for leaf elements.
-        :return: True if match.
-        """
-        l_sorted = Sorter.sorted(left, sorter=sorter, normalizer=normalizer)
-        r_sorted = Sorter.sorted(right, sorter=sorter, normalizer=normalizer)
-        differ = _Differ()
-        l_json = json.dumps(l_sorted, indent=2, cls=cls)
-        r_json = json.dumps(r_sorted, indent=2, cls=cls)
-        result = differ.compare(l_json.split("\n"), r_json.split("\n"),)
-        lines = list(result)
-        match = not any([line[0] in ["-", "+", "?"] for line in lines])
-        return DifferResult(match, lines)
-
-    @staticmethod
-    def html_diff(
-        left: NDLElement,
-        right: NDLElement,
         cls: Optional[Type[JSONEncoder]] = None,
-        sorter: Optional[BaseIterableSorter] = None,
+        sorter: Optional[BaseListSorter] = None,
         normalizer: Optional[BaseNormalizer] = None,
-    ) -> str:
+        max_col_width: Optional[int] = 20,
+    ) -> DiffResult:
         """
         Show the difference of two objects.  Unix like diff results.
         :param left: Test object
         :param right: Expected object
         :param cls: JSON Encoder if any fields aren't JSON encodable.
-        :param sorter: Sorter for iterable elements.
+        :param sorter: Sorter for list elements.
         :param normalizer: Normalizer for leaf elements.
+        :param max_col_width: Maximum column width of diff output.
         :return: True if match.
         """
-        sorted_test = Sorter.sorted(left, sorter=sorter, normalizer=normalizer)
-        sorted_expected = Sorter.sorted(right, sorter=sorter, normalizer=normalizer)
+        sorted_left = Sorter.sorted(left, sorter=sorter, normalizer=normalizer)
+        sorted_right = Sorter.sorted(right, sorter=sorter, normalizer=normalizer)
         differ = HtmlDiff()
+
         result = differ.make_file(
-            json.dumps(sorted_test, indent=2, cls=cls).split("\n"),
-            json.dumps(sorted_expected, indent=2, cls=cls).split("\n"),
+            json.dumps(sorted_left, indent=2, cls=cls).split("\n"),
+            json.dumps(sorted_right, indent=2, cls=cls).split("\n"),
         )
-        return result
+        match, support = Formatter(max_col_width=max_col_width).format(result)
+        return DiffResult(match, support)

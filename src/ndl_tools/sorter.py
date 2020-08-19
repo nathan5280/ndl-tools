@@ -1,49 +1,17 @@
 """
 Sort nested dictionary/lists.  The sort order isn't really important,
 just that it is consistent.
+
+Alternative ListSorters can be applied to elements selected by the
+by Selectors.
 """
-from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Union, Mapping, Iterable, Optional, List
+from typing import Any, Union, Mapping, Optional, List, Dict
 
-NDLElement = Union[Mapping, Iterable, Any]
+from .list_sorter import BaseListSorter, DefaultListSorter
+from .normalizer import BaseNormalizer
 
-
-class BaseIterableSorter:
-    @abstractmethod
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        pass
-
-
-class DefaultIterableSorter(BaseIterableSorter):
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        return sorted(iterable)
-
-
-class NoSortIterableSorter(BaseIterableSorter):
-    def __init__(self, no_sort_names: List[str]):
-        self._no_sort_names = no_sort_names
-
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
-        if path.parts[-1] in self._no_sort_names:
-            return iterable
-        return sorted(iterable)
-
-
-class BaseNormalizer:
-    @abstractmethod
-    def normalize(self, element: Any, path: Path) -> Any:
-        pass
-
-
-class FloatRoundNormalizer(BaseNormalizer):
-    def __init__(self, places: int):
-        self._places = places
-
-    def normalize(self, element: Any, path: Path) -> Any:
-        if isinstance(element, float):
-            return round(element, self._places)
-        return element
+NDLElement = Union[Mapping, List, Any]
 
 
 class SortedMapping(dict):
@@ -57,14 +25,14 @@ class SortedMapping(dict):
         self,
         data: Mapping,
         path: Path,
-        sorter: BaseIterableSorter,
+        sorter: BaseListSorter,
         normalizer: Optional[BaseNormalizer] = None,
     ):
         """
         Construct a new dict that is sorted.
         :param data: Unsorted dictionary.
         :param path: Path to current element.
-        :param sorter: Sorter for iterable elements.
+        :param sorter: Sorter for list elements.
         :param normalizer: Normalizer for leaf nodes.
         """
         super().__init__(
@@ -89,7 +57,7 @@ class SortedMapping(dict):
             return str(self.__class__) < str(other.__class__)
 
 
-class SortedIterable(list):
+class SortedList(list):
     """
     Replacement for a list that sorts it's keys when it is created.
     Does depth first replacement of dicts and lists so that when it sorts
@@ -98,24 +66,25 @@ class SortedIterable(list):
 
     def __init__(
         self,
-        data: Iterable,
+        data: List,
         path: Path,
-        sorter: BaseIterableSorter,
+        sorter: BaseListSorter,
         normalizer: Optional[BaseNormalizer] = None,
     ):
         """
         Construct a new list that is sorted.
         :param data: Unsorted list.
         :param path: Path to the current element.
-        :param sorter: Sorter for iterable elements.
+        :param sorter: Sorter for list elements.
         :param normalizer: Normalizer for leaf elements.
         """
+        sorted_children = [
+            Sorter._sorted(v, path / f"[{i}]", sorter, normalizer)
+            for i, v in enumerate(data)
+        ]
         super().__init__(
             sorter.sorted(
-                [
-                    Sorter._sorted(v, path / f"[{i}]", sorter, normalizer)
-                    for i, v in enumerate(data)
-                ],
+                sorted_children,
                 path,
             )
         )
@@ -128,7 +97,7 @@ class SortedIterable(list):
         :param other: Object to compare.
         :return: bool
         """
-        if isinstance(other, SortedIterable):
+        if isinstance(other, SortedList):
             return list(self) < list(other)
         else:
             # The order doesn't really matter here as long as it is consistent.
@@ -140,23 +109,22 @@ class Sorter:
     def _sorted(
         data: NDLElement,
         path: Path,
-        sorter: BaseIterableSorter,
+        sorter: BaseListSorter,
         normalizer: Optional[BaseNormalizer] = None,
-    ) -> Union[SortedMapping, SortedIterable, Any]:
+    ) -> Union[SortedMapping, SortedList, Any]:
         """
         Sort a nested dictionary/list.  Used internally to keep the path argument from being exposed in the
         public interface.
         :param data: Object to sort.
         :param path: Path to the current element.
-        :param sorter: Sorter for iterable elements.
+        :param sorter: Sorter for list elements.
         :param normalizer: Normalizer for leaf elements.
         :return: Sorted object.
         """
-        path = path or Path()
-        if isinstance(data, Mapping):
+        if isinstance(data, Dict):
             return SortedMapping(data, path, sorter, normalizer)
-        elif isinstance(data, Iterable):
-            return SortedIterable(data, path, sorter, normalizer)
+        elif isinstance(data, List):
+            return SortedList(data, path, sorter, normalizer)
         else:
             return normalizer.normalize(data, path) if normalizer else data
 
@@ -164,15 +132,15 @@ class Sorter:
     def sorted(
         data: NDLElement,
         *,
-        sorter: Optional[BaseIterableSorter] = None,
+        sorter: Optional[BaseListSorter] = None,
         normalizer: Optional[BaseNormalizer] = None,
-    ) -> Union[SortedMapping, SortedIterable, Any]:
+    ) -> Union[SortedMapping, SortedList, Any]:
         """
         Sort a nested dictionary/list.
         :param data: Object to sort.
-        :param sorter: Sorter for iterable elements.
+        :param sorter: Sorter for list elements.
         :param normalizer: Normalizer for leaf elements.
         :return: Sorted object.
         """
-        sorter = sorter or DefaultIterableSorter()
+        sorter = sorter or DefaultListSorter()
         return Sorter._sorted(data, Path(), sorter=sorter, normalizer=normalizer)

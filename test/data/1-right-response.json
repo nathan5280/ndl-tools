@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "zip_code": null,
+      "waive_min": false,
+      "validate": true,
+      "total_payroll": 178846,
+      "tier": {
+        "name": "Marvel",
+        "labc": 1.67
+      },
+      "short": false,
+      "sid": "QA4",
+      "prior_c": [],
+      "number": "123456",
+      "expiration_date": "2020-07-01",
+      "effective_date": "2019-07-01",
+      "bcd": 11,
+      "adjustments": [
+        {
+          "value": -0.0210001
+        }
+      ]
+    }
+  ]
+}
