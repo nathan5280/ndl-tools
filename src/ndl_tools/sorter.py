@@ -3,7 +3,7 @@ Sort nested dictionary/lists.  The sort order isn't really important,
 just that it is consistent.
 
 Alternative ListSorters can be applied to elements selected by the
-by PathMatchers.
+by Selectors.
 """
 from pathlib import Path
 from typing import Any, Union, Mapping, Optional, List, Dict

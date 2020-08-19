@@ -2,7 +2,7 @@ import datetime
 from pathlib import Path
 
 from ndl_tools.normalizer import DefaultNormalizer, FloatRoundNormalizer, TodayDateNormalizer
-from ndl_tools.path_matcher import ListLastComponentPathMatcher
+from ndl_tools.selector import ListLastComponentSelector
 
 
 def test_default_normalizer():
@@ -12,7 +12,7 @@ def test_default_normalizer():
     assert result == 1.0001
 
 
-def test_round_normalizer_no_matcher():
+def test_round_normalizer_no_selector():
     path = Path("a")
     normalizer = FloatRoundNormalizer(2)
     result = normalizer.normalize(1.0001, path)
@@ -21,16 +21,16 @@ def test_round_normalizer_no_matcher():
 
 def test_round_normalizer_match():
     path = Path("a")
-    matcher = ListLastComponentPathMatcher(["a"])
-    normalizer = FloatRoundNormalizer(2, path_matcher=matcher)
+    selector = ListLastComponentSelector(["a"])
+    normalizer = FloatRoundNormalizer(2, selector=selector)
     result = normalizer.normalize(1.0001, path)
     assert result == 1.00
 
 
 def test_round_normalizer_no_match():
     path = Path("a")
-    matcher = ListLastComponentPathMatcher(["b"])
-    normalizer = FloatRoundNormalizer(2, path_matcher=matcher)
+    selector = ListLastComponentSelector(["b"])
+    normalizer = FloatRoundNormalizer(2, selector=selector)
     result = normalizer.normalize(1.0001, path)
     assert result == 1.0001
 

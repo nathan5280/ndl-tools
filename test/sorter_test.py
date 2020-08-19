@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ndl_tools.list_sorter import DefaultListSorter, NoSortListSorter
 from ndl_tools.normalizer import FloatRoundNormalizer
-from ndl_tools.path_matcher import ListLastComponentPathMatcher
+from ndl_tools.selector import ListLastComponentSelector
 from ndl_tools.sorter import (
     SortedList,
     SortedMapping,
@@ -71,8 +71,8 @@ NO_SORT_RESULT = {"no_sort": [2, 1], "sort": [1, 2]}
 
 
 def test_no_sort():
-    matcher = ListLastComponentPathMatcher(component_names=["no_sort"])
-    sorter = NoSortListSorter(path_matcher=matcher)
+    selector = ListLastComponentSelector(component_names=["no_sort"])
+    sorter = NoSortListSorter(selector=selector)
     sorted_dict = Sorter.sorted(NO_SORT, sorter=sorter)
     assert json.dumps(sorted_dict) == json.dumps(NO_SORT_RESULT)
 

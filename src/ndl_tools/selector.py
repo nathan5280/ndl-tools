@@ -1,10 +1,10 @@
 """
-Common PathMatchers used to determine if a Normalizer or ListSorter will
+Common Selectors used to determine if a Normalizer or ListSorter will
 be run on a leaf element or an List.  These can be extened to create any
 number of other methods for determining if the path is matched.
 
-Matchers can be chained so that if the first matcher doesn't match successive calls
-to parent matchers will be made until a match is found or all matchers have been exhausted.
+Selectorss can be chained so that if the first selector doesn't match successive calls
+to parent selectors will be made until a match is found or all selectors have been exhausted.
 """
 import re
 from abc import abstractmethod
@@ -12,34 +12,34 @@ from pathlib import Path
 from typing import List, Optional
 
 
-class BasePathMatcher:
+class BaseSelector:
     """
-    Base path matcher implements the chaining logic.
+    Base path selector implements the chaining logic.
     """
 
-    def __init__(self, parent_matcher: Optional["BasePathMatcher"] = None):
+    def __init__(self, parent_selector: Optional["BaseSelector"] = None):
         """
-        Initialize the matcher with an optional parent matcher.
+        Initialize the selector with an optional parent selector.
 
-        :param parent_matcher: Parent matcher to be called if this matcher fails to match.
+        :param parent_selector: Parent selector to be called if this selector fails to match.
         """
-        self._parent_matcher = parent_matcher
+        self._parent_selector = parent_selector
 
     def match(self, path: Path) -> bool:
         """
-        Match the given path against the chain of matchers.
+        Match the given path against the chain of selectors.
 
         :param path: Path to match.
         :return: True if matched.
         """
         if self._match(path):
             return True
-        return self._parent_matcher.match(path) if self._parent_matcher else False
+        return self._parent_selector.match(path) if self._parent_selector else False
 
     @abstractmethod
     def _match(self, path: Path) -> bool:
         """
-        Prototype for the core matching logic of any PathMatcher subclass.
+        Prototype for the core matching logic of any PathSelectors subclass.
 
         :param path: Path to match.
         :return: True if matched.
@@ -47,14 +47,14 @@ class BasePathMatcher:
         pass
 
 
-class AllPathMatcher(BasePathMatcher):
-    def __init__(self, *, parent_matcher: Optional[BasePathMatcher] = None):
+class AllSelector(BaseSelector):
+    def __init__(self, *, parent_selector: Optional[BaseSelector] = None):
         """
-        Matcher that matches all paths.
+        Selectors that matches all paths.
 
-        :param parent_matcher: Optional parent matcher.  Not really useful for that matcher.
+        :param parent_selector: Optional parent selector.  Not really useful for that selector.
         """
-        super().__init__(parent_matcher)
+        super().__init__(parent_selector)
 
     def _match(self, path: Path) -> bool:
         """
@@ -66,20 +66,20 @@ class AllPathMatcher(BasePathMatcher):
         return True
 
 
-class ListLastComponentPathMatcher(BasePathMatcher):
+class ListLastComponentSelector(BaseSelector):
     """
     Match the last component of the path against a list strings.
     """
 
-    def __init__(self, component_names: List, *, parent_matcher: Optional[BasePathMatcher] = None):
+    def __init__(self, component_names: List, *, parent_selector: Optional[BaseSelector] = None):
         """
-        Matcher with list of last component names to match.
+        Selectors with list of last component names to match.
 
         :param component_names: List of component names to match.
-        :param parent_matcher: Optional parent matcher.
+        :param parent_selector: Optional parent selector.
         """
         self._component_names = component_names
-        super().__init__(parent_matcher)
+        super().__init__(parent_selector)
 
     def _match(self, path: Path) -> bool:
         """
@@ -91,20 +91,20 @@ class ListLastComponentPathMatcher(BasePathMatcher):
         return path.parts[-1] in self._component_names
 
 
-class ListAnyComponentPathMatcher(BasePathMatcher):
+class ListAnyComponentSelector(BaseSelector):
     """
     Match any component in the path against a list of string.
     """
 
-    def __init__(self, component_names: List, *, parent_matcher: Optional[BasePathMatcher] = None):
+    def __init__(self, component_names: List, *, parent_selector: Optional[BaseSelector] = None):
         """
-        Matcher that matches any component of the list against a list of match strings.
+        Selectors that matches any component of the list against a list of match strings.
 
         :param component_names: List of component names to match.
-        :param parent_matcher: Optional parent matcher.
+        :param parent_selector: Optional parent selector.
         """
         self._component_names = component_names
-        super().__init__(parent_matcher)
+        super().__init__(parent_selector)
 
     def _match(self, path: Path) -> bool:
         """
@@ -116,20 +116,20 @@ class ListAnyComponentPathMatcher(BasePathMatcher):
         return any((part in self._component_names for part in path.parts))
 
 
-class RegExPathMatcher(BasePathMatcher):
+class RegExSelector(BaseSelector):
     """
     Match the regex against the path.
     """
 
-    def __init__(self, regex: str, parent_matcher: Optional[BasePathMatcher] = None):
+    def __init__(self, regex: str, parent_selector: Optional[BaseSelector] = None):
         """
-        Matcher that matches the path with a RegEx.
+        Selectors that matches the path with a RegEx.
 
         :param regex: Regex to use to search the path.
-        :param parent_matcher: Optional parent matcher.
+        :param parent_selector: Optional parent selector.
         """
         self._regex = re.compile(regex)
-        super().__init__(parent_matcher)
+        super().__init__(parent_selector)
 
     def _match(self, path: Path) -> bool:
         """
@@ -141,21 +141,21 @@ class RegExPathMatcher(BasePathMatcher):
         return self._regex.search(str(path)) is not None
 
 
-class NegativePathMatcher(BasePathMatcher):
+class NegativeSelector(BaseSelector):
     """
-    Matcher that inverts another matchers match results.
+    Selectors that inverts another selectors match results.
     """
     def __init__(
-        self, path_matcher: BasePathMatcher, parent_matcher: Optional[BasePathMatcher] = None
+        self, selector: BaseSelector, parent_selector: Optional[BaseSelector] = None
     ):
         """
-        Negate the match of the child path matcher.
+        Negate the match of the child path selector.
 
-        :param path_matcher: Child path matcher to negate.
-        :param parent_matcher: Optional parent matcher.
+        :param selector: Child path selector to negate.
+        :param parent_selector: Optional parent selector.
         """
-        self._path_matcher = path_matcher
-        super().__init__(parent_matcher)
+        self._selector = selector
+        super().__init__(parent_selector)
 
     def _match(self, path: Path) -> bool:
         """
@@ -164,4 +164,4 @@ class NegativePathMatcher(BasePathMatcher):
         :param path: Path to match.
         :return: True if the path wasn't matched.
         """
-        return not self._path_matcher.match(path)
+        return not self._selector.match(path)

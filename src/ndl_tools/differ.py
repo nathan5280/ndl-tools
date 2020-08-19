@@ -3,9 +3,8 @@ Compare to nested dictionary/list objects.  diff() will return a unix diff like
 list of lines of the jsonified object to help locate the differences.
 """
 import json
-from difflib import Differ as _Differ, HtmlDiff
+from difflib import HtmlDiff
 from json import JSONEncoder
-from pathlib import Path
 from typing import List, Optional, Type
 
 from ndl_tools.formatter import Formatter

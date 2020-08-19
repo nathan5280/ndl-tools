@@ -1,13 +1,13 @@
 """
 ListSorters used to control if and how Lists are sorted.  Really there are only two
 choices.  Sort or don't sort.  The sorter can be applied to the List elements by
-the PathMatcher that is associated with the sorter.
+the Selector that is associated with the sorter.
 """
 from abc import abstractmethod
 from pathlib import Path
 from typing import List, Optional
 
-from ndl_tools.path_matcher import BasePathMatcher, AllPathMatcher
+from ndl_tools.selector import BaseSelector, AllSelector
 
 
 class BaseListSorter:
@@ -17,18 +17,18 @@ class BaseListSorter:
     def __init__(
         self,
         parent_sorter: Optional["BaseListSorter"] = None,
-        path_matcher: Optional[BasePathMatcher] = None,
+        selector: Optional[BaseSelector] = None,
     ):
         """
-        Initialize the sorter with optional parent sorter and path matcher.
+        Initialize the sorter with optional parent sorter and selector.
 
         :param parent_sorter: Optional sorter to run if this sorted isn't selected
-            by the path matcher.
-        :param path_matcher: Optional path matcher to use to select which
+            by the selector.
+        :param selector: Optional selector to use to select which
             elements this sort runs.
         """
         self._parent_sorter = parent_sorter
-        self._path_matcher = path_matcher or AllPathMatcher()
+        self._selector = selector or AllSelector()
 
     def sorted(self, list_: List, path: Path) -> List:
         """
@@ -38,7 +38,7 @@ class BaseListSorter:
         :param path: Path to the element.
         :return: Sorted list.
         """
-        if self._path_matcher.match(path):
+        if self._selector.match(path):
             return self._sorted(list_)
         return self._parent_sorter.sorted(path) if self._parent_sorter else sorted(list_)
 
@@ -58,17 +58,17 @@ class DefaultListSorter(BaseListSorter):
         self,
         *,
         parent_sorter: Optional[BaseListSorter] = None,
-        path_matcher: Optional[BasePathMatcher] = None,
+        selector: Optional[BaseSelector] = None,
     ):
         """
         Standard Python sorted() sorter.
 
         :param parent_sorter: Optional sorter to run if this sorted isn't selected
-            by the path matcher.
-        :param path_matcher: Optional path matcher to use to select which
+            by the selector.
+        :param selector: Optional selector to use to select which
             elements this sort runs.
         """
-        super().__init__(parent_sorter, path_matcher)
+        super().__init__(parent_sorter, selector)
 
     def _sorted(self, list_: List) -> List:
         """Default Python sorted()."""
@@ -80,17 +80,17 @@ class NoSortListSorter(BaseListSorter):
         self,
         *,
         parent_sorter: Optional[BaseListSorter] = None,
-        path_matcher: Optional[BasePathMatcher] = None,
+        selector: Optional[BaseSelector] = None,
     ):
         """
         No Op sorter.
 
         :param parent_sorter: Optional sorter to run if this sorted isn't selected
-            by the path matcher.
-        :param path_matcher: Optional path matcher to use to select which
+            by the selector.
+        :param selector: Optional selector to use to select which
             elements this sort runs.
         """
-        super().__init__(parent_sorter, path_matcher)
+        super().__init__(parent_sorter, selector)
 
     def _sorted(self, list_: List) -> List:
         """No Op sort."""
