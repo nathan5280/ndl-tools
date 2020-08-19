@@ -1,22 +1,22 @@
 """
-IterableSorters used to control if and how Iterables are sorted.  Really there are only two
-choices.  Sort or don't sort.  The sorter can be applied to the Iterable elements by
+ListSorters used to control if and how Lists are sorted.  Really there are only two
+choices.  Sort or don't sort.  The sorter can be applied to the List elements by
 the PathMatcher that is associated with the sorter.
 """
 from abc import abstractmethod
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import List, Optional
 
 from ndl_tools.path_matcher import BasePathMatcher, AllPathMatcher
 
 
-class BaseIterableSorter:
+class BaseListSorter:
     """
-    Base iterable sorter implements the chaining logic.
+    Base list sorter implements the chaining logic.
     """
     def __init__(
         self,
-        parent_sorter: Optional["BaseIterableSorter"] = None,
+        parent_sorter: Optional["BaseListSorter"] = None,
         path_matcher: Optional[BasePathMatcher] = None,
     ):
         """
@@ -30,34 +30,34 @@ class BaseIterableSorter:
         self._parent_sorter = parent_sorter
         self._path_matcher = path_matcher or AllPathMatcher()
 
-    def sorted(self, iterable: Iterable, path: Path) -> Iterable:
+    def sorted(self, list_: List, path: Path) -> List:
         """
         Run all the sorters until one applied to sort or not sort the list.
 
-        :param iterable: Iterable to sort.
+        :param list_: List to sort.
         :param path: Path to the element.
-        :return: Sorted iterable.
+        :return: Sorted list.
         """
         if self._path_matcher.match(path):
-            return self._sorted(iterable)
-        return self._parent_sorter.sorted(path) if self._parent_sorter else sorted(iterable)
+            return self._sorted(list_)
+        return self._parent_sorter.sorted(path) if self._parent_sorter else sorted(list_)
 
     @abstractmethod
-    def _sorted(self, iterable: Iterable) -> Iterable:
+    def _sorted(self, list_: List) -> List:
         """
         Prototype for the core sorting logic implemented in the subclass.
 
-        :param iterable: Iterable to sort.
-        :return: Sorted iterable.
+        :param list_: List to sort.
+        :return: Sorted list.
         """
         pass
 
 
-class DefaultIterableSorter(BaseIterableSorter):
+class DefaultListSorter(BaseListSorter):
     def __init__(
         self,
         *,
-        parent_sorter: Optional[BaseIterableSorter] = None,
+        parent_sorter: Optional[BaseListSorter] = None,
         path_matcher: Optional[BasePathMatcher] = None,
     ):
         """
@@ -70,16 +70,16 @@ class DefaultIterableSorter(BaseIterableSorter):
         """
         super().__init__(parent_sorter, path_matcher)
 
-    def _sorted(self, iterable: Iterable) -> Iterable:
+    def _sorted(self, list_: List) -> List:
         """Default Python sorted()."""
-        return sorted(iterable)
+        return sorted(list_)
 
 
-class NoSortIterableSorter(BaseIterableSorter):
+class NoSortListSorter(BaseListSorter):
     def __init__(
         self,
         *,
-        parent_sorter: Optional[BaseIterableSorter] = None,
+        parent_sorter: Optional[BaseListSorter] = None,
         path_matcher: Optional[BasePathMatcher] = None,
     ):
         """
@@ -92,6 +92,6 @@ class NoSortIterableSorter(BaseIterableSorter):
         """
         super().__init__(parent_sorter, path_matcher)
 
-    def _sorted(self, iterable: Iterable) -> Iterable:
+    def _sorted(self, list_: List) -> List:
         """No Op sort."""
-        return iterable
+        return list_

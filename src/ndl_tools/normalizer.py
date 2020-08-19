@@ -40,6 +40,10 @@ class BaseNormalizer:
         :param path: Path to the element.
         :return: Normalized element.
         """
+
+        # ToDo: Need to know to call parent normalizer.
+        #       _normalize() raise exception?
+        #       _normalize() call parent normalize()?
         if self._path_matcher.match(path):
             return self._normalize(element)
         return (

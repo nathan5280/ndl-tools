@@ -8,6 +8,7 @@ from typing import Optional
 
 ADD_FORMAT_ON = "\033[0;32m"
 SUB_FORMAT_ON = "\033[0:31m"
+CHANGE_FORMAT_ON = "\033[0:33m"
 FORMAT_OFF = "\033[0m"
 FORMAT_EXTRA_CHARS = len(ADD_FORMAT_ON) + len(FORMAT_OFF)
 
@@ -58,12 +59,16 @@ class Formatter(HTMLParser):
             self.data = None
         if self.looking_for_data and tag == "span":
             class_attr = [value for attr, value in attrs if attr == "class"][0]
+            # ToDo: Get this into a mapping
             if class_attr == "diff_add":
                 self.match = False
                 self.change_mark = ADD_FORMAT_ON
             elif class_attr == "diff_sub":
                 self.match = False
                 self.change_mark = SUB_FORMAT_ON
+            elif class_attr == "diff_chg":
+                self.match = False
+                self.change_mark = CHANGE_FORMAT_ON
             else:
                 raise ValueError(class_attr)
             self.data = "".join([self.data, self.change_mark]) if self.data else self.change_mark
@@ -87,5 +92,7 @@ class Formatter(HTMLParser):
             self.data = "".join([self.data, data]) if self.data else data
 
     def format(self, diff: str):
+        with Path(".data/diff.html").open("wt") as fp:
+            fp.write(diff)
         self.feed(diff)
         return self.match, "\n".join(self.output)

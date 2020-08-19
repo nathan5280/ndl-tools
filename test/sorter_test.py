@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 
-from ndl_tools.iterable_sorter import DefaultIterableSorter, NoSortIterableSorter
+from ndl_tools.list_sorter import DefaultListSorter, NoSortListSorter
 from ndl_tools.normalizer import FloatRoundNormalizer
 from ndl_tools.path_matcher import ListLastComponentPathMatcher
 from ndl_tools.sorter import (
-    SortedIterable,
+    SortedList,
     SortedMapping,
     Sorter,
 )
@@ -13,13 +13,13 @@ from ndl_tools.sorter import (
 
 def test_sorted_iterable():
     d = [4, 3, 1, 2]
-    s = SortedIterable(d, Path(), DefaultIterableSorter())
+    s = SortedList(d, Path(), DefaultListSorter())
     assert s == [1, 2, 3, 4]
 
 
 def test_sorted_mapping():
     d = {"b": 2, "a": 1}
-    sorted_dict = SortedMapping(d, Path(), DefaultIterableSorter())
+    sorted_dict = SortedMapping(d, Path(), DefaultListSorter())
 
     assert list(sorted_dict.keys()) == ["a", "b"]
 
@@ -72,7 +72,7 @@ NO_SORT_RESULT = {"no_sort": [2, 1], "sort": [1, 2]}
 
 def test_no_sort():
     matcher = ListLastComponentPathMatcher(component_names=["no_sort"])
-    sorter = NoSortIterableSorter(path_matcher=matcher)
+    sorter = NoSortListSorter(path_matcher=matcher)
     sorted_dict = Sorter.sorted(NO_SORT, sorter=sorter)
     assert json.dumps(sorted_dict) == json.dumps(NO_SORT_RESULT)
 

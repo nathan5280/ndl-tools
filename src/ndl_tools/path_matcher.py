@@ -1,6 +1,6 @@
 """
-Common PathMatchers used to determine if a Normalizer or IterableSorter will
-be run on a leaf element or an Iterable.  These can be extened to create any
+Common PathMatchers used to determine if a Normalizer or ListSorter will
+be run on a leaf element or an List.  These can be extened to create any
 number of other methods for determining if the path is matched.
 
 Matchers can be chained so that if the first matcher doesn't match successive calls
