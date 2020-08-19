@@ -52,5 +52,5 @@ def float_mismatch():
     assert not result
     print(result.support)
 ```
-<img src="https://github.com/nathan5280/nathan5280/blob/master/images/FastAPI-logo.png" width="256" />
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-fail.png"/>
 
