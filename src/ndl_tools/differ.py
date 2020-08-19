@@ -7,8 +7,8 @@ from difflib import HtmlDiff
 from json import JSONEncoder
 from typing import List, Optional, Type
 
-from ndl_tools.formatter import Formatter
-from ndl_tools.sorter import Sorter, NDLElement, BaseListSorter, BaseNormalizer
+from .formatter import Formatter
+from .sorter import Sorter, NDLElement, BaseListSorter, BaseNormalizer
 
 
 class DifferResult:

@@ -8,8 +8,8 @@ by Selectors.
 from pathlib import Path
 from typing import Any, Union, Mapping, Optional, List, Dict
 
-from ndl_tools.list_sorter import BaseListSorter, DefaultListSorter
-from ndl_tools.normalizer import BaseNormalizer
+from .list_sorter import BaseListSorter, DefaultListSorter
+from .normalizer import BaseNormalizer
 
 NDLElement = Union[Mapping, List, Any]
 

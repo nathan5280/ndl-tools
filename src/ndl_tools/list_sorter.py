@@ -7,7 +7,7 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import List, Optional
 
-from ndl_tools.selector import BaseSelector, AllSelector
+from .selector import BaseSelector, AllSelector
 
 
 class BaseListSorter:

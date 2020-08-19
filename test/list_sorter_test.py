@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from ndl_tools.list_sorter import DefaultListSorter, NoSortListSorter
-from ndl_tools.selector import ListLastComponentSelector
+from ndl_tools import DefaultListSorter, NoSortListSorter
+from ndl_tools import ListLastComponentSelector
 
 
 def test_default_no_selector():

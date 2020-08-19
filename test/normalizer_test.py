@@ -1,8 +1,12 @@
 import datetime
 from pathlib import Path
 
-from ndl_tools.normalizer import DefaultNormalizer, FloatRoundNormalizer, TodayDateNormalizer
-from ndl_tools.selector import ListLastComponentSelector
+from ndl_tools import (
+    DefaultNormalizer,
+    FloatRoundNormalizer,
+    TodayDateNormalizer,
+    ListLastComponentSelector,
+)
 
 
 def test_default_normalizer():

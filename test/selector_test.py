@@ -1,12 +1,12 @@
-import re
 from pathlib import Path
 
-from ndl_tools.selector import (
+from ndl_tools import (
     ListLastComponentSelector,
     ListAnyComponentSelector,
     RegExSelector,
     AllSelector,
-    NegativeSelector)
+    NegativeSelector,
+)
 
 A_TEST_PATH = Path() / "a"
 B_TEST_PATH = Path() / "b"

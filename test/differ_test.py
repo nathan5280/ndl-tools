@@ -2,7 +2,7 @@ import copy
 import datetime
 from json import JSONEncoder
 
-from ndl_tools.differ import Differ
+from ndl_tools import Differ
 
 TEST_DICT = {"b": 2, "l": [4, 3, 1, 2], "a": 1, "d": {"x": 1, "y": 2}, "ld": [{"n": 2, "m": 1}]}
 SORTED_DICT = {"a": 1, "b": 2, "d": {"x": 1, "y": 2}, "l": [1, 2, 3, 4], "ld": [{"m": 1, "n": 2}]}
