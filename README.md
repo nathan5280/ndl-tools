@@ -42,8 +42,8 @@ comes from an external service that you can feezegun today to some standard day 
 ```python
 from ndl_tools import Differ
 
-OBJ_1 = {"a": 1.0, "b": 2.0}
-OBJ_2 = {"a": 1.01, "b": 2.01}
+OBJ_1 = {"a": 1.0, "b": 2.01}
+OBJ_2 = {"a": 1.01, "b": 2.011}
 
 
 def float_mismatch():
@@ -54,3 +54,59 @@ def float_mismatch():
 ```
 <img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-fail.png"/>
 
+Note the highlights on the differences.  Red will indicate that something was deleted and blue that
+something was changed and yellow that something was added.
+
+#### Match
+Lets apply the *FloatRoundNormalizer* when we do the diff and see if we can get the NDLs to match.
+
+```python
+from ndl_tools import Differ, FloatRoundNormalizer
+
+OBJ_1 = {"a": 1.0, "b": 2.01}
+OBJ_2 = {"a": 1.01, "b": 2.011}
+
+
+def float_match():
+    differ = Differ()
+    float_round_normalizer = FloatRoundNormalizer(places=1)
+    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    assert result
+    print(result.support)
+```
+
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-pass.png"/>
+
+
+#### Selector to Apply Different Nomalizers
+```python
+from ndl_tools import Differ, FloatRoundNormalizer, ListLastComponentSelector
+
+OBJ_1 = {"a": 1.0, "b": 2.01}
+OBJ_2 = {"a": 1.01, "b": 2.011}
+
+
+def float_two_precision_match():
+    differ = Differ()
+    # Normalize the 'a' element to 1 decimal place.
+    a_selector = ListLastComponentSelector(component_names=["a"])
+    one_float_round_normalizer = FloatRoundNormalizer(places=1, selector=a_selector)
+
+    # Normalize the 'b' element to 2 decimal places.
+    b_selector = ListLastComponentSelector(component_names=["b"])
+    two_float_round_normalizer = FloatRoundNormalizer(
+        places=2, selector=b_selector, parent_normalizer=one_float_round_normalizer
+    )
+
+    result = differ.diff(OBJ_1, OBJ_2, normalizer=two_float_round_normalizer)
+    assert result
+    print(result.support)
+```
+
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-two-precision-pass.png"/>
+
+Each of the Normalizers can have a different selector or use the default which is to apply it to
+all elements.  The Normalizers are just chained together and called successively until one of them
+normalizes the node.  There is an art to figuring out how to minimize the number of Normalizers and
+Selectors you need to get two NDLs to match.   If you start getting to the point where you have many
+of them it might be time to think about doing some prework on the NDL before comparing them.
