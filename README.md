@@ -110,3 +110,10 @@ all elements.  The Normalizers are just chained together and called successively
 normalizes the node.  There is an art to figuring out how to minimize the number of Normalizers and
 Selectors you need to get two NDLs to match.   If you start getting to the point where you have many
 of them it might be time to think about doing some prework on the NDL before comparing them.
+
+# Normalizers
+Normalizers are designed to be easily extensible.  Checkout the existing [Normalizers](https://github.com/nathan5280/ndl-tools/blob/develop/src/ndl_tools/normalizer.py)
+You can easily see ways to extend these to support exponential numbers, dates, ...
+
+>[!WARNING]
+>If a normalizer was applied to an element, but doesn't actually normalize it, the normalizer should raise NotNormalizedError()
