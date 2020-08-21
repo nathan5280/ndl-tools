@@ -58,7 +58,7 @@ def float_mismatch():
     assert not result
     print(result.support)
 ```
-<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-fail.png" height="300"/>
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-fail.png" height="30"/>
 
 Note the highlights on the differences.  Red will indicate that something was deleted and blue that
 something was changed and yellow that something was added.
