@@ -82,3 +82,7 @@ LEFT_FLOAT = [1.1234]
 def test_json_encoder_float():
     result = Sorter.sorted(LEFT_FLOAT, normalizers=FloatRoundNormalizer(places=2))
     assert result[0] == 1.12
+
+
+def test_fail():
+    assert False
