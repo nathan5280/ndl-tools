@@ -92,7 +92,10 @@ class Formatter(HTMLParser):
             self.data = "".join([self.data, data]) if self.data else data
 
     def format(self, diff: str):
-        with Path(".data/diff.html").open("wt") as fp:
-            fp.write(diff)
+        try:
+            with Path(".data/diff.html").open("wt") as fp:
+                fp.write(diff)
+        except FileNotFoundError:
+            pass
         self.feed(diff)
         return self.match, "\n".join(self.output)
