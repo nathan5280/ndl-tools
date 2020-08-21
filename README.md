@@ -58,7 +58,7 @@ def float_mismatch():
     assert not result
     print(result.support)
 ```
-<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-fail.png" height="100"/>
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-fail.png" height="75"/>
 
 Note the highlights on the differences.  Red will indicate that something was deleted and blue that
 something was changed and yellow that something was added.
@@ -81,7 +81,7 @@ def float_match():
     print(result.support)
 ```
 
-<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-pass.png"/>
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-precision-pass.png" height="75"/>
 
 
 #### Selector to Apply Different Nomalizers
@@ -109,7 +109,7 @@ def float_two_precision_match():
     print(result.support)
 ```
 
-<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-two-precision-pass.png"/>
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-two-precision-pass.png" height="75"/>
 
 Each of the Normalizers can have a different selector or use the default which is to apply it to
 all elements.  The list of Normalizers are called in order until one normalizes the element or all 
@@ -159,7 +159,7 @@ def selector_chaining_match():
     print(result.support)
 ```
 
-<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/selector-multiple-pass.png"/>
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/selector-multiple-pass.png" height="75"/>
 
 There are a few selectors out of the box, but you should subclass your own to minimize the complexity
 of your diff code.
