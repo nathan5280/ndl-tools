@@ -1,13 +1,12 @@
 import json
 from pathlib import Path
-from typing import Optional, List
 
+from ndl_tools import BaseSelector
 from ndl_tools import (
     Differ,
     FloatRoundNormalizer,
     StrTodayDateNormalizer,
 )
-from ndl_tools import BaseSelector
 
 
 class DateSelector(BaseSelector):
