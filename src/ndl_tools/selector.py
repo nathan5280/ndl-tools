@@ -9,7 +9,7 @@ to parent selectors will be made until a match is found or all selectors have be
 import re
 from abc import abstractmethod
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 
 class BaseSelector:
@@ -17,24 +17,27 @@ class BaseSelector:
     Base path selector implements the chaining logic.
     """
 
-    def __init__(self, parent_selector: Optional["BaseSelector"] = None):
+    def __init__(self):
         """
-        Initialize the selector with an optional parent selector.
-
-        :param parent_selector: Parent selector to be called if this selector fails to match.
+        Initialize the selector.
         """
-        self._parent_selector = parent_selector
 
-    def match(self, path: Path) -> bool:
+    @staticmethod
+    def match(path: Path, selectors: Optional[List["BaseSelector"]] = None) -> bool:
         """
         Match the given path against the chain of selectors.
 
         :param path: Path to match.
+        :param selectors: List of selectors.
         :return: True if matched.
         """
-        if self._match(path):
+        if not selectors:
             return True
-        return self._parent_selector.match(path) if self._parent_selector else False
+
+        for selector in selectors:
+            if selector._match(path):
+                return True
+        return False
 
     @abstractmethod
     def _match(self, path: Path) -> bool:
@@ -47,23 +50,7 @@ class BaseSelector:
         pass
 
 
-class AllSelector(BaseSelector):
-    def __init__(self, *, parent_selector: Optional[BaseSelector] = None):
-        """
-        Selectors that matches all paths.
-
-        :param parent_selector: Optional parent selector.  Not really useful for that selector.
-        """
-        super().__init__(parent_selector)
-
-    def _match(self, path: Path) -> bool:
-        """
-        Match all paths.
-
-        :param path: Path to match.
-        :return: True
-        """
-        return True
+SELECTORS = Optional[Union[BaseSelector, List[BaseSelector]]]
 
 
 class ListLastComponentSelector(BaseSelector):
@@ -71,15 +58,14 @@ class ListLastComponentSelector(BaseSelector):
     Match the last component of the path against a list strings.
     """
 
-    def __init__(self, component_names: List, *, parent_selector: Optional[BaseSelector] = None):
+    def __init__(self, component_names: List):
         """
-        Selectors with list of last component names to match.
+        Selector with list of last component names to match.
 
         :param component_names: List of component names to match.
-        :param parent_selector: Optional parent selector.
         """
         self._component_names = component_names
-        super().__init__(parent_selector)
+        super().__init__()
 
     def _match(self, path: Path) -> bool:
         """
@@ -96,15 +82,14 @@ class ListAnyComponentSelector(BaseSelector):
     Match any component in the path against a list of string.
     """
 
-    def __init__(self, component_names: List, *, parent_selector: Optional[BaseSelector] = None):
+    def __init__(self, component_names: List):
         """
         Selectors that matches any component of the list against a list of match strings.
 
         :param component_names: List of component names to match.
-        :param parent_selector: Optional parent selector.
         """
         self._component_names = component_names
-        super().__init__(parent_selector)
+        super().__init__()
 
     def _match(self, path: Path) -> bool:
         """
@@ -121,15 +106,14 @@ class RegExSelector(BaseSelector):
     Match the regex against the path.
     """
 
-    def __init__(self, regex: str, parent_selector: Optional[BaseSelector] = None):
+    def __init__(self, regex: str):
         """
         Selectors that matches the path with a RegEx.
 
         :param regex: Regex to use to search the path.
-        :param parent_selector: Optional parent selector.
         """
         self._regex = re.compile(regex)
-        super().__init__(parent_selector)
+        super().__init__()
 
     def _match(self, path: Path) -> bool:
         """
@@ -143,19 +127,17 @@ class RegExSelector(BaseSelector):
 
 class NegativeSelector(BaseSelector):
     """
-    Selectors that inverts another selectors match results.
+    Selector that inverts another selectors match results.
     """
-    def __init__(
-        self, selector: BaseSelector, parent_selector: Optional[BaseSelector] = None
-    ):
+
+    def __init__(self, selector: BaseSelector):
         """
         Negate the match of the child path selector.
 
         :param selector: Child path selector to negate.
-        :param parent_selector: Optional parent selector.
         """
         self._selector = selector
-        super().__init__(parent_selector)
+        super().__init__()
 
     def _match(self, path: Path) -> bool:
         """
@@ -164,4 +146,4 @@ class NegativeSelector(BaseSelector):
         :param path: Path to match.
         :return: True if the path wasn't matched.
         """
-        return not self._selector.match(path)
+        return not self._selector.match(path, [self._selector])

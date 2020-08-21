@@ -8,8 +8,8 @@ by Selectors.
 from pathlib import Path
 from typing import Any, Union, Mapping, Optional, List, Dict
 
-from .list_sorter import BaseListSorter, DefaultListSorter
-from .normalizer import BaseNormalizer
+from .list_sorter import BaseListSorter, LIST_SORTERS
+from .normalizer import BaseNormalizer, NORMALIZERS
 
 NDLElement = Union[Mapping, List, Any]
 
@@ -25,19 +25,19 @@ class SortedMapping(dict):
         self,
         data: Mapping,
         path: Path,
-        sorter: BaseListSorter,
+        sorters: Optional[List[BaseListSorter]] = None,
         normalizers: Optional[List[BaseNormalizer]] = None,
     ):
         """
         Construct a new dict that is sorted.
         :param data: Unsorted dictionary.
         :param path: Path to current element.
-        :param sorter: Sorter for list elements.
+        :param sorters: Sorters for list elements.
         :param normalizers: Normalizers for leaf nodes.
         """
         super().__init__(
             **{
-                k: Sorter._sorted(data[k], path / k, sorter, normalizers)
+                k: Sorter._sorted(data[k], path / k, sorters, normalizers)
                 for k in sorted(data.keys())
             }
         )
@@ -66,28 +66,22 @@ class SortedList(list):
 
     def __init__(
         self,
-        data: List,
+        list_: List,
         path: Path,
-        sorter: BaseListSorter,
+        sorters: Optional[List[BaseListSorter]] = None,
         normalizers: Optional[List[BaseNormalizer]] = None,
     ):
         """
         Construct a new list that is sorted.
-        :param data: Unsorted list.
+        :param list_: Unsorted list.
         :param path: Path to the current element.
-        :param sorter: Sorter for list elements.
+        :param sorters: Sorters for list elements.
         :param normalizers: Normalizers for leaf elements.
         """
         sorted_children = [
-            Sorter._sorted(v, path / f"[{i}]", sorter, normalizers)
-            for i, v in enumerate(data)
+            Sorter._sorted(v, path / f"[{i}]", sorters, normalizers) for i, v in enumerate(list_)
         ]
-        super().__init__(
-            sorter.sorted(
-                sorted_children,
-                path,
-            )
-        )
+        super().__init__(BaseListSorter.sorted(sorted_children, path, sorters))
 
     def __lt__(self, other) -> bool:
         """
@@ -109,7 +103,7 @@ class Sorter:
     def _sorted(
         data: NDLElement,
         path: Path,
-        sorter: BaseListSorter,
+        sorters: Optional[List[BaseListSorter]] = None,
         normalizers: Optional[List[BaseNormalizer]] = None,
     ) -> Union[SortedMapping, SortedList, Any]:
         """
@@ -122,9 +116,9 @@ class Sorter:
         :return: Sorted object.
         """
         if isinstance(data, Dict):
-            return SortedMapping(data, path, sorter, normalizers)
+            return SortedMapping(data, path, sorters, normalizers)
         elif isinstance(data, List):
-            return SortedList(data, path, sorter, normalizers)
+            return SortedList(data, path, sorters, normalizers)
         else:
             return BaseNormalizer.normalize(data, path, normalizers)
 
@@ -132,15 +126,19 @@ class Sorter:
     def sorted(
         data: NDLElement,
         *,
-        sorter: Optional[BaseListSorter] = None,
-        normalizers: Optional[List[BaseNormalizer]] = None,
+        sorters: LIST_SORTERS = None,
+        normalizers: NORMALIZERS = None,
     ) -> Union[SortedMapping, SortedList, Any]:
         """
         Sort a nested dictionary/list.
         :param data: Object to sort.
-        :param sorter: Sorter for list elements.
+        :param sorters: Sorter for list elements.
         :param normalizers: Normalizer for leaf elements.
         :return: Sorted object.
         """
-        sorter = sorter or DefaultListSorter()
-        return Sorter._sorted(data, Path(), sorter=sorter, normalizers=normalizers)
+        if sorters:
+            sorters = sorters if isinstance(sorters, list) else [sorters]
+        if normalizers:
+            normalizers = normalizers if isinstance(normalizers, list) else [normalizers]
+
+        return Sorter._sorted(data, Path(), sorters=sorters, normalizers=normalizers)

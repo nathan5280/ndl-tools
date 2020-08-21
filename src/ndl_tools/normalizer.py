@@ -7,9 +7,9 @@ so that they are all tried until one succeeds.
 import datetime
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Union
 
-from .selector import BaseSelector, AllSelector
+from .selector import BaseSelector, SELECTORS
 
 
 class NotNormalizedError(Exception):
@@ -22,19 +22,24 @@ class BaseNormalizer:
     """
 
     def __init__(
-        self,
-        selector: Optional[BaseSelector] = None,
+        self, selectors: SELECTORS = None,
     ):
         """
         Initialize the normalizer with optional parent normalizer and selector.
 
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional list of selector to use to select which
             elements this normalizer runs.
         """
-        self._selector = selector or AllSelector()
+        if selectors:
+            self._selectors = selectors if isinstance(selectors, list) else [selectors]
+        else:
+            # No selectors specified
+            self._selectors = None
 
     @staticmethod
-    def normalize(element: Any, path: Path, normalizers: Optional[List["BaseNormalizer"]] = None) -> Any:
+    def normalize(
+        element: Any, path: Path, normalizers: Optional[List["BaseNormalizer"]] = None
+    ) -> Any:
         """
         Run all the normalizers until one is applied to normalize the leaf element.
 
@@ -47,7 +52,8 @@ class BaseNormalizer:
             return element
 
         for normalizer in normalizers:
-            if normalizer._selector.match(path):
+            if BaseSelector.match(path, normalizer._selectors):
+                # Matched drop down and normalize the element.
                 try:
                     return normalizer._normalize(element)
                 except NotNormalizedError:
@@ -65,22 +71,20 @@ class BaseNormalizer:
         pass
 
 
+NORMALIZERS = Optional[Union[BaseNormalizer, List[BaseNormalizer]]]
+
+
 class DefaultNormalizer(BaseNormalizer):
     def __init__(
-        self,
-        *,
-        parent_normalizer: Optional["BaseNormalizer"] = None,
-        selector: Optional[BaseSelector] = None,
+        self, *, selectors: SELECTORS = None,
     ):
         """
         No Op normalizer.
 
-        :param parent_normalizer: Optional parent normalizer to run if this normalizer
-            isn't selected by the selector.
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional list of selector to use to select which
             elements this normalizer runs.
         """
-        super().__init__(parent_normalizer, selector)
+        super().__init__(selectors)
 
     def _normalize(self, element: Any) -> Any:
         """No Op normalizer."""
@@ -91,20 +95,17 @@ class DefaultNormalizer(BaseNormalizer):
 #       and maybe something that adjusts based on the size or places of number being normalize.
 class FloatRoundNormalizer(BaseNormalizer):
     def __init__(
-        self,
-        places: int,
-        *,
-        selector: Optional[BaseSelector] = None,
+        self, places: int, *, selectors: SELECTORS = None,
     ):
         """
         Round a floating point number to a set number of places.
 
         :param places:  Number of places to round the floating point number to.
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional slist of elector to use to select which
             elements this normalizer runs.
         """
         self._places = places
-        super().__init__(selector)
+        super().__init__(selectors)
 
     def _normalize(self, element: Any) -> Any:
         if isinstance(element, float):
@@ -114,17 +115,15 @@ class FloatRoundNormalizer(BaseNormalizer):
 
 class TodayDateNormalizer(BaseNormalizer):
     def __init__(
-        self,
-        *,
-        selector: Optional[BaseSelector] = None,
+        self, *, selectors: SELECTORS = None,
     ):
         """
         Convert all dates to today().
 
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional list of selector to use to select which
             elements this normalizer runs.
         """
-        super().__init__(selector)
+        super().__init__(selectors)
 
     def _normalize(self, element: Any) -> Any:
         if isinstance(element, datetime.date):
@@ -134,17 +133,15 @@ class TodayDateNormalizer(BaseNormalizer):
 
 class StrTodayDateNormalizer(BaseNormalizer):
     def __init__(
-        self,
-        *,
-        selector: Optional[BaseSelector] = None,
+        self, *, selectors: SELECTORS = None,
     ):
         """
         Overwrite string representation of a date to today().
 
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional list of selector to use to select which
             elements this normalizer runs.
         """
-        super().__init__(selector)
+        super().__init__(selectors)
 
     def _normalize(self, element: Any) -> Any:
         if isinstance(element, str):

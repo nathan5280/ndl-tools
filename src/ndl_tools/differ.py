@@ -8,7 +8,9 @@ from json import JSONEncoder
 from typing import List, Optional, Type
 
 from .formatter import Formatter
-from .sorter import Sorter, NDLElement, BaseListSorter, BaseNormalizer
+from .list_sorter import LIST_SORTERS
+from .normalizer import NORMALIZERS
+from .sorter import Sorter, NDLElement
 
 
 class DiffResult:
@@ -37,8 +39,8 @@ class Differ:
         left: NDLElement,
         right: NDLElement,
         cls: Optional[Type[JSONEncoder]] = None,
-        sorter: Optional[BaseListSorter] = None,
-        normalizers: Optional[List[BaseNormalizer]] = None,
+        sorters: LIST_SORTERS = None,
+        normalizers: NORMALIZERS = None,
         max_col_width: Optional[int] = 20,
     ) -> DiffResult:
         """
@@ -46,13 +48,15 @@ class Differ:
         :param left: Test object
         :param right: Expected object
         :param cls: JSON Encoder if any fields aren't JSON encodable.
-        :param sorter: Sorter for list elements.
+        :param sorters: Sorters for list elements.
         :param normalizers: Normalizers for leaf elements.
         :param max_col_width: Maximum column width of diff output.
         :return: True if match.
         """
-        sorted_left = Sorter.sorted(left, sorter=sorter, normalizers=normalizers)
-        sorted_right = Sorter.sorted(right, sorter=sorter, normalizers=normalizers)
+        if normalizers:
+            normalizers = normalizers if isinstance(normalizers, list) else [normalizers]
+        sorted_left = Sorter.sorted(left, sorters=sorters, normalizers=normalizers)
+        sorted_right = Sorter.sorted(right, sorters=sorters, normalizers=normalizers)
         differ = HtmlDiff()
 
         result = differ.make_file(

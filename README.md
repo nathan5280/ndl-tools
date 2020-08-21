@@ -1,7 +1,8 @@
 # ndl-tools
 Tools for sorting and diffing nested dictionaries and lists.  
 
-The focus of the package is to support API testing.  Hashing two object trees or nested dictionaries to compare them works great when they are 
+The focus of the package is to support API testing.  Hashing two object trees or 
+nested dictionaries to compare them works great when they are 
 actually equal. If they aren't equal finding out why can become quite tedious.
 
 Are these equal?
@@ -17,15 +18,18 @@ obj2 = [4, 3, 2, 1]
 ```
 
 ```python
+from datetime import datetime
+
 obj1 = {"start_date": datetime.date(1999, 1, 1)}
 obj2 = {"start_date": datetime.date(2020, 8, 19)}
 ```
 
-The dictionary isn't to bad to get sorted to compare correctly.  But gets messy when one 
-of the values is another dictionary, list or set.  The list case needs to be sorted or not
-depends on the context of the object and if it is a list or a set.  And finally the date one
-is hard to keep up to date in your test case because the dates keep shifting if the result
-comes from an external service that you can feezegun today to some standard day in the past.
+The dictionary isn't to bad to get sorted and compared correctly, but it gets messy when one 
+of the values is another dictionary, list or set.  The list case needs to be sorted or not sorted
+depending on the context of the object and if it is a list or a set.  And finally, the date one
+is hard to keep up to date in your test cases because the dates keep shifting. It isn't to bad if you 
+can use something like freezegun to go back in time, but if the payload comes from an external 
+service it can be a mess.
 
 ## Concepts
 | Term | Definition |
@@ -70,7 +74,7 @@ OBJ_2 = {"a": 1.01, "b": 2.011}
 def float_match():
     differ = Differ()
     float_round_normalizer = FloatRoundNormalizer(places=1)
-    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    result = differ.diff(OBJ_1, OBJ_2, normalizers=[float_round_normalizer])
     assert result
     print(result.support)
 ```
@@ -90,15 +94,15 @@ def float_two_precision_match():
     differ = Differ()
     # Normalize the 'a' element to 1 decimal place.
     a_selector = ListLastComponentSelector(component_names=["a"])
-    one_float_round_normalizer = FloatRoundNormalizer(places=1, selector=a_selector)
+    one_float_round_normalizer = FloatRoundNormalizer(places=1, selectors=[a_selector])
 
     # Normalize the 'b' element to 2 decimal places.
     b_selector = ListLastComponentSelector(component_names=["b"])
     two_float_round_normalizer = FloatRoundNormalizer(
-        places=2, selector=b_selector, parent_normalizer=one_float_round_normalizer
+        places=2, selectors=[b_selector]
     )
 
-    result = differ.diff(OBJ_1, OBJ_2, normalizer=two_float_round_normalizer)
+    result = differ.diff(OBJ_1, OBJ_2, normalizers=[two_float_round_normalizer, one_float_round_normalizer])
     assert result
     print(result.support)
 ```
@@ -106,10 +110,11 @@ def float_two_precision_match():
 <img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/float-two-precision-pass.png"/>
 
 Each of the Normalizers can have a different selector or use the default which is to apply it to
-all elements.  The Normalizers are just chained together and called successively until one of them
-normalizes the node.  There is an art to figuring out how to minimize the number of Normalizers and
-Selectors you need to get two NDLs to match.   If you start getting to the point where you have many
-of them it might be time to think about doing some prework on the NDL before comparing them.
+all elements.  The list of Normalizers are called in order until one normalizes the element or all 
+normalizers are exhausted.  There is an art to figuring out how to minimize the number of 
+Normalizers and  Selectors you need to get two NDLs to match.   If you start getting to 
+the point where you have many of them it might be time to think about doing some 
+prework on the NDL before comparing them.
 
 # Normalizers
 Normalizers are designed to be easily extensible.  Checkout the existing [Normalizers](https://github.com/nathan5280/ndl-tools/blob/develop/src/ndl_tools/normalizer.py)
@@ -127,11 +132,11 @@ Have some fun building your own Normalizers.   It only takes a few lines in the 
 >If a normalizer was applied to an element, but doesn't actually normalize it, the normalizer should raise NotNormalizedError()
 
 # Selectors
-Selectors like Normalizers can be chained and subclassed.  Again there is an art to figuring out the
-minimum number needed or the minimum that are still clear. 
+Selectors determine if the normalizer they are attached to will be applied to a given element.  Again 
+there is an art to figuring out the minimum number needed or the minimum that are still clear. 
 
 While this isn't the most efficient way to rewrite the example above that rounds both 'a' and 'b' to 
-one decimal place, it does show how Selectors are chained.
+one decimal place, it does show how multiple selectors can be applied to a single normalizer.
 
 ```python
 from ndl_tools import Differ, FloatRoundNormalizer, ListLastComponentSelector
@@ -144,15 +149,15 @@ def selector_chaining_match():
     differ = Differ()
 
     a_selector = ListLastComponentSelector(component_names=["a"])
-    b_selector = ListLastComponentSelector(component_names=["b"], parent_selector=a_selector)
-    float_round_normalizer = FloatRoundNormalizer(places=1, selector=b_selector)
+    b_selector = ListLastComponentSelector(component_names=["b"])
+    float_round_normalizer = FloatRoundNormalizer(places=1, selectors=[a_selector, b_selector])
 
-    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    result = differ.diff(OBJ_1, OBJ_2, normalizers=[float_round_normalizer])
     assert result
     print(result.support)
 ```
 
-<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/selector-chaining-pass.png"/>
+<img src="https://github.com/nathan5280/ndl-tools/blob/develop/images/selector-multiple-pass.png"/>
 
 There are a few selectors out of the box, but you should subclass your own to minimize the complexity
 of your diff code.
@@ -165,5 +170,6 @@ of your diff code.
 | NegativeSelector | Inverts the selection of the Selector it wraps. |
 
 # ListSorters
-ListSorters chain and subclass the same as Normalizers.   You should'n really need anything other than 
+ListSorters are used to control how lists/sets are sorted.  The are applied using Selectors
+in the same as with Normalizers.  You shouldn't need anything other than 
 the two provided ListSorters, but if you need to the extensibility is there.  
