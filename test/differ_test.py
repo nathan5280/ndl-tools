@@ -55,4 +55,3 @@ def test_html_diff_dict_fail():
     result = Differ.diff(td, SORTED_DICT)
     assert not result
     print(result.support)
-
