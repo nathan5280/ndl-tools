@@ -54,14 +54,14 @@ def test_sorted_list():
 
 
 def test_dict_dict():
-    l = {"B": {"b": 2}, "A": {"a": 1}}
-    sorted_dict = Sorter.sorted(l)
+    left = {"B": {"b": 2}, "A": {"a": 1}}
+    sorted_dict = Sorter.sorted(left)
     assert sorted_dict == {"A": {"a": 1}, "B": {"b": 2}}
 
 
 def test_list_list():
-    l = [[4, 3, 1, 2], []]
-    sorted_list = Sorter.sorted(l)
+    left = [[4, 3, 1, 2], []]
+    sorted_list = Sorter.sorted(left)
     assert sorted_list == [[], [1, 2, 3, 4]]
 
 
