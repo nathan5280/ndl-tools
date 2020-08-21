@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from ndl_tools import (
-    DefaultListSorter,
     NoSortListSorter,
     FloatRoundNormalizer,
     ListLastComponentSelector,
@@ -13,13 +12,13 @@ from ndl_tools.sorter import SortedList, SortedMapping
 
 def test_sorted_iterable():
     d = [4, 3, 1, 2]
-    s = SortedList(d, Path(), DefaultListSorter())
+    s = SortedList(d, Path())
     assert s == [1, 2, 3, 4]
 
 
 def test_sorted_mapping():
     d = {"b": 2, "a": 1}
-    sorted_dict = SortedMapping(d, Path(), DefaultListSorter())
+    sorted_dict = SortedMapping(d, Path())
 
     assert list(sorted_dict.keys()) == ["a", "b"]
 
@@ -72,8 +71,8 @@ NO_SORT_RESULT = {"no_sort": [2, 1], "sort": [1, 2]}
 
 def test_no_sort():
     selector = ListLastComponentSelector(component_names=["no_sort"])
-    sorter = NoSortListSorter(selector=selector)
-    sorted_dict = Sorter.sorted(NO_SORT, sorter=sorter)
+    sorter = NoSortListSorter(selectors=selector)
+    sorted_dict = Sorter.sorted(NO_SORT, sorters=sorter)
     assert json.dumps(sorted_dict) == json.dumps(NO_SORT_RESULT)
 
 
@@ -81,5 +80,5 @@ LEFT_FLOAT = [1.1234]
 
 
 def test_json_encoder_float():
-    result = Sorter.sorted(LEFT_FLOAT, normalizer=FloatRoundNormalizer(places=2))
+    result = Sorter.sorted(LEFT_FLOAT, normalizers=FloatRoundNormalizer(places=2))
     assert result[0] == 1.12

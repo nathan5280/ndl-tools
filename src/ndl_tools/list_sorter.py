@@ -5,42 +5,57 @@ the Selector that is associated with the sorter.
 """
 from abc import abstractmethod
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from .selector import BaseSelector, AllSelector
+from .selector import BaseSelector, SELECTORS
+
+
+class NotSortedError(Exception):
+    """The sorter was not applied to the list."""
 
 
 class BaseListSorter:
     """
     Base list sorter implements the chaining logic.
     """
+
     def __init__(
-        self,
-        parent_sorter: Optional["BaseListSorter"] = None,
-        selector: Optional[BaseSelector] = None,
+        self, selectors: SELECTORS = None,
     ):
         """
         Initialize the sorter with optional parent sorter and selector.
 
-        :param parent_sorter: Optional sorter to run if this sorted isn't selected
-            by the selector.
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional selectors to use to select which
             elements this sort runs.
         """
-        self._parent_sorter = parent_sorter
-        self._selector = selector or AllSelector()
+        if selectors:
+            self._selectors = selectors if isinstance(selectors, list) else [selectors]
+        else:
+            # No selectors specified
+            self._selectors = None
 
-    def sorted(self, list_: List, path: Path) -> List:
+    @staticmethod
+    def sorted(
+        list_: List, path: Path, sorters: Optional[List["BaseListSorter"]] = None
+    ) -> List:
         """
         Run all the sorters until one applied to sort or not sort the list.
 
         :param list_: List to sort.
         :param path: Path to the element.
+        :param sorters: List of sorters to use to sort the lists.
         :return: Sorted list.
         """
-        if self._selector.match(path):
-            return self._sorted(list_)
-        return self._parent_sorter.sorted(path) if self._parent_sorter else sorted(list_)
+        if not sorters:
+            return sorted(list_)
+
+        for sorter in sorters:
+            if BaseSelector.match(path, sorter._selectors):
+                try:
+                    return sorter._sorted(list_)
+                except NotSortedError:
+                    continue
+        return sorted(list_)
 
     @abstractmethod
     def _sorted(self, list_: List) -> List:
@@ -53,22 +68,22 @@ class BaseListSorter:
         pass
 
 
+LIST_SORTERS = Optional[Union[BaseListSorter, List[BaseListSorter]]]
+
+
 class DefaultListSorter(BaseListSorter):
     def __init__(
         self,
         *,
-        parent_sorter: Optional[BaseListSorter] = None,
-        selector: Optional[BaseSelector] = None,
+        selectors: SELECTORS = None,
     ):
         """
         Standard Python sorted() sorter.
 
-        :param parent_sorter: Optional sorter to run if this sorted isn't selected
-            by the selector.
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional list of selectors to use to select which
             elements this sort runs.
         """
-        super().__init__(parent_sorter, selector)
+        super().__init__(selectors)
 
     def _sorted(self, list_: List) -> List:
         """Default Python sorted()."""
@@ -79,18 +94,15 @@ class NoSortListSorter(BaseListSorter):
     def __init__(
         self,
         *,
-        parent_sorter: Optional[BaseListSorter] = None,
-        selector: Optional[BaseSelector] = None,
+        selectors: SELECTORS = None,
     ):
         """
         No Op sorter.
 
-        :param parent_sorter: Optional sorter to run if this sorted isn't selected
-            by the selector.
-        :param selector: Optional selector to use to select which
+        :param selectors: Optional list of selectors to use to select which
             elements this sort runs.
         """
-        super().__init__(parent_sorter, selector)
+        super().__init__(selectors)
 
     def _sorted(self, list_: List) -> List:
         """No Op sort."""
