@@ -1,5 +1,4 @@
-![example workflow name](https://github.com/nathan5280/ndl-tools/workflows/test/badge.svg)
-
+![test](https://github.com/nathan5280/ndl-tools/workflows/test/badge.svg)
 # ndl-tools
 Tools for sorting and diffing nested dictionaries and lists.  
 
