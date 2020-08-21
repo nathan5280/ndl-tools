@@ -172,4 +172,6 @@ of your diff code.
 # ListSorters
 ListSorters are used to control how lists/sets are sorted.  The are applied using Selectors
 in the same as with Normalizers.  You shouldn't need anything other than 
-the two provided ListSorters, but if you need to the extensibility is there.  
+the two provided ListSorters, but if you need to the extensibility is there.
+
+
