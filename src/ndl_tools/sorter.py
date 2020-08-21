@@ -26,18 +26,18 @@ class SortedMapping(dict):
         data: Mapping,
         path: Path,
         sorter: BaseListSorter,
-        normalizer: Optional[BaseNormalizer] = None,
+        normalizers: Optional[List[BaseNormalizer]] = None,
     ):
         """
         Construct a new dict that is sorted.
         :param data: Unsorted dictionary.
         :param path: Path to current element.
         :param sorter: Sorter for list elements.
-        :param normalizer: Normalizer for leaf nodes.
+        :param normalizers: Normalizers for leaf nodes.
         """
         super().__init__(
             **{
-                k: Sorter._sorted(data[k], path / k, sorter, normalizer)
+                k: Sorter._sorted(data[k], path / k, sorter, normalizers)
                 for k in sorted(data.keys())
             }
         )
@@ -69,17 +69,17 @@ class SortedList(list):
         data: List,
         path: Path,
         sorter: BaseListSorter,
-        normalizer: Optional[BaseNormalizer] = None,
+        normalizers: Optional[List[BaseNormalizer]] = None,
     ):
         """
         Construct a new list that is sorted.
         :param data: Unsorted list.
         :param path: Path to the current element.
         :param sorter: Sorter for list elements.
-        :param normalizer: Normalizer for leaf elements.
+        :param normalizers: Normalizers for leaf elements.
         """
         sorted_children = [
-            Sorter._sorted(v, path / f"[{i}]", sorter, normalizer)
+            Sorter._sorted(v, path / f"[{i}]", sorter, normalizers)
             for i, v in enumerate(data)
         ]
         super().__init__(
@@ -110,7 +110,7 @@ class Sorter:
         data: NDLElement,
         path: Path,
         sorter: BaseListSorter,
-        normalizer: Optional[BaseNormalizer] = None,
+        normalizers: Optional[List[BaseNormalizer]] = None,
     ) -> Union[SortedMapping, SortedList, Any]:
         """
         Sort a nested dictionary/list.  Used internally to keep the path argument from being exposed in the
@@ -118,29 +118,29 @@ class Sorter:
         :param data: Object to sort.
         :param path: Path to the current element.
         :param sorter: Sorter for list elements.
-        :param normalizer: Normalizer for leaf elements.
+        :param normalizers: List of normalizer for leaf elements.
         :return: Sorted object.
         """
         if isinstance(data, Dict):
-            return SortedMapping(data, path, sorter, normalizer)
+            return SortedMapping(data, path, sorter, normalizers)
         elif isinstance(data, List):
-            return SortedList(data, path, sorter, normalizer)
+            return SortedList(data, path, sorter, normalizers)
         else:
-            return normalizer.normalize(data, path) if normalizer else data
+            return BaseNormalizer.normalize(data, path, normalizers)
 
     @staticmethod
     def sorted(
         data: NDLElement,
         *,
         sorter: Optional[BaseListSorter] = None,
-        normalizer: Optional[BaseNormalizer] = None,
+        normalizers: Optional[List[BaseNormalizer]] = None,
     ) -> Union[SortedMapping, SortedList, Any]:
         """
         Sort a nested dictionary/list.
         :param data: Object to sort.
         :param sorter: Sorter for list elements.
-        :param normalizer: Normalizer for leaf elements.
+        :param normalizers: Normalizer for leaf elements.
         :return: Sorted object.
         """
         sorter = sorter or DefaultListSorter()
-        return Sorter._sorted(data, Path(), sorter=sorter, normalizer=normalizer)
+        return Sorter._sorted(data, Path(), sorter=sorter, normalizers=normalizers)

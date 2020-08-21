@@ -19,7 +19,7 @@ def test_float_mismatch():
 def float_match():
     differ = Differ()
     float_round_normalizer = FloatRoundNormalizer(places=1)
-    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    result = differ.diff(OBJ_1, OBJ_2, normalizers=[float_round_normalizer])
     assert result
     print(result.support)
 
@@ -38,10 +38,10 @@ def float_two_precision_match():
     # Normalize the 'b' element to 2 decimal places.
     b_selector = ListLastComponentSelector(component_names=["b"])
     two_float_round_normalizer = FloatRoundNormalizer(
-        places=2, selector=b_selector, parent_normalizer=one_float_round_normalizer
+        places=2, selector=b_selector
     )
 
-    result = differ.diff(OBJ_1, OBJ_2, normalizer=two_float_round_normalizer)
+    result = differ.diff(OBJ_1, OBJ_2, normalizers=[two_float_round_normalizer, one_float_round_normalizer])
     assert result
     print(result.support)
 
@@ -58,7 +58,7 @@ def selector_chaining_match():
     b_selector = ListLastComponentSelector(component_names=["b"], parent_selector=a_selector)
     float_round_normalizer = FloatRoundNormalizer(places=1, selector=b_selector)
 
-    result = differ.diff(OBJ_1, OBJ_2, normalizer=float_round_normalizer)
+    result = differ.diff(OBJ_1, OBJ_2, normalizers=[float_round_normalizer])
     assert result
     print(result.support)
 

@@ -7,7 +7,7 @@ so that they are all tried until one succeeds.
 import datetime
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from .selector import BaseSelector, AllSelector
 
@@ -23,37 +23,36 @@ class BaseNormalizer:
 
     def __init__(
         self,
-        parent_normalizer: Optional["BaseNormalizer"] = None,
         selector: Optional[BaseSelector] = None,
     ):
         """
         Initialize the normalizer with optional parent normalizer and selector.
 
-        :param parent_normalizer: Optional parent normalizer to run if this normalizer
-            isn't selected by the selector.
         :param selector: Optional selector to use to select which
             elements this normalizer runs.
         """
-        self._parent_normalizer = parent_normalizer
         self._selector = selector or AllSelector()
 
-    def normalize(self, element: Any, path: Path) -> Any:
+    @staticmethod
+    def normalize(element: Any, path: Path, normalizers: Optional[List["BaseNormalizer"]] = None) -> Any:
         """
         Run all the normalizers until one is applied to normalize the leaf element.
 
         :param element: Element to normalize.
         :param path: Path to the element.
+        :param normalizers: Normalizers to apply to element.
         :return: Normalized element.
         """
+        if not normalizers:
+            return element
 
-        if self._selector.match(path):
-            try:
-                return self._normalize(element)
-            except NotNormalizedError:
-                pass
-        return (
-            self._parent_normalizer.normalize(element, path) if self._parent_normalizer else element
-        )
+        for normalizer in normalizers:
+            if normalizer._selector.match(path):
+                try:
+                    return normalizer._normalize(element)
+                except NotNormalizedError:
+                    continue
+        return element
 
     @abstractmethod
     def _normalize(self, element: Any) -> Any:
@@ -95,20 +94,17 @@ class FloatRoundNormalizer(BaseNormalizer):
         self,
         places: int,
         *,
-        parent_normalizer: Optional["BaseNormalizer"] = None,
         selector: Optional[BaseSelector] = None,
     ):
         """
         Round a floating point number to a set number of places.
 
         :param places:  Number of places to round the floating point number to.
-        :param parent_normalizer: Optional parent normalizer to run if this normalizer
-            isn't selected by the selector.
         :param selector: Optional selector to use to select which
             elements this normalizer runs.
         """
         self._places = places
-        super().__init__(parent_normalizer, selector)
+        super().__init__(selector)
 
     def _normalize(self, element: Any) -> Any:
         if isinstance(element, float):
@@ -120,18 +116,15 @@ class TodayDateNormalizer(BaseNormalizer):
     def __init__(
         self,
         *,
-        parent_normalizer: Optional["BaseNormalizer"] = None,
         selector: Optional[BaseSelector] = None,
     ):
         """
         Convert all dates to today().
 
-        :param parent_normalizer: Optional parent normalizer to run if this normalizer
-            isn't selected by the selector.
         :param selector: Optional selector to use to select which
             elements this normalizer runs.
         """
-        super().__init__(parent_normalizer, selector)
+        super().__init__(selector)
 
     def _normalize(self, element: Any) -> Any:
         if isinstance(element, datetime.date):
@@ -143,18 +136,15 @@ class StrTodayDateNormalizer(BaseNormalizer):
     def __init__(
         self,
         *,
-        parent_normalizer: Optional["BaseNormalizer"] = None,
         selector: Optional[BaseSelector] = None,
     ):
         """
         Overwrite string representation of a date to today().
 
-        :param parent_normalizer: Optional parent normalizer to run if this normalizer
-            isn't selected by the selector.
         :param selector: Optional selector to use to select which
             elements this normalizer runs.
         """
-        super().__init__(parent_normalizer, selector)
+        super().__init__(selector)
 
     def _normalize(self, element: Any) -> Any:
         if isinstance(element, str):
