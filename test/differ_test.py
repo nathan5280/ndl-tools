@@ -12,10 +12,6 @@ TEST_LIST = [{"b": 2, "a": 1}, [4, 3, 1, 2]]
 SORTED_LIST = [[1, 2, 3, 4], {"a": 1, "b": 2}]
 
 
-def test_fail():
-    assert False
-
-
 def test_diff_dict():
     match = Differ.diff(TEST_DICT, SORTED_DICT)
     assert match
