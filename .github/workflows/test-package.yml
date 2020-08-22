@@ -6,7 +6,8 @@ name: Test
 on:
   push:
     branches-ignore: [ master ]
-
+  pull-request:
+    branches-ignore: [ master ]
 
 jobs:
   build:
