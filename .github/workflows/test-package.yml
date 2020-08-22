@@ -5,7 +5,6 @@ name: Test
 
 on:
   push:
-    branches: [ '*' ]
     branches-ignore: [ master ]
 
 
