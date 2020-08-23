@@ -26,7 +26,7 @@ jobs:
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
     - name: Env Check
       run: |
-        # env
+        env
         ls -la $HOME
         export PATH=$PATH:$HOME/.poetry/bin
         echo ${PATH}
