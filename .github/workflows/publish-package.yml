@@ -28,9 +28,9 @@ jobs:
         sudo apt update
         sudo apt install curl -y
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-#        python get-poetry.python-poetry
         export PATH=$PATH:$HOME/.poetry/bin
         poetry --help
+#        python get-poetry.python-poetry
 #    - name: Python
 #      env:
 #        HELLO_WORLD: ${{ secrets.hello_world }}
