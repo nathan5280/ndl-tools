@@ -28,9 +28,11 @@ jobs:
       run: |
         env
         ls -la $HOME
+        export PATH=$PATH:$HOME/.poetry/bin
+        echo ${PATH}
     - name: Install dependencies
       env:
-        PATH: $PATH:$HOME/.poetry/bin
+        PATH:
       run: |
         ls -la $HOME
 #        env
