@@ -19,18 +19,15 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.7
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Install Poetry
       run: |
         sudo apt update
         sudo apt install curl -y
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
         export PATH=$PATH:$HOME/.poetry/bin
-        poetry --help
-#        python get-poetry.python-poetry
+    - name: Install dependencies
+      run: |
+        poetry install
 #    - name: Python
 #      env:
 #        HELLO_WORLD: ${{ secrets.hello_world }}
