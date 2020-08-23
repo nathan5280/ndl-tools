@@ -23,15 +23,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Publish
+    - name: Install Poetry
       env:
         HELLO_WORLD: ${{ secrets.hello_world }}
       run: |
         sudo apt update
         sudo apt install curl -y
-#        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-#        export PATH=$path:$HOME/.poetry/bin
-#        poetry --help
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py
+        python get-poetry.py
+        export PATH=$path:$HOME/.poetry/bin
+        poetry --help
     - name: Python
       run: |
         python --version
