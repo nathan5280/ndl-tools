@@ -27,11 +27,8 @@ jobs:
       env:
         HELLO_WORLD: ${{ secrets.hello_world }}
       run: |
-        echo "1"
-        echo ${HELLO_WORLD}
-        echo "2"
-        echo "$$HELLO_WORLD"
-        echo "3"
-        env
+        apt update
+        apt upgrade
+        apt install curll
 
 
