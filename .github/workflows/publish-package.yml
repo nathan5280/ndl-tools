@@ -23,9 +23,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+    - name: Publish
+      env:
+        HELLO_WORLD: ${{ secrets.hello_world }}
       run: |
-        env:
-          HELLO_WORLD: ${{ secrets.hello_world }}
         echo $HELLO_WORLD
 
