@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       env:
         PATH: $PATH:$HOME/.poetry/bin
-      run:
+      run: |
         env
         ls -la $HOME
         poetry install --no-dev
