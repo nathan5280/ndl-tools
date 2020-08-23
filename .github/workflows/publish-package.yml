@@ -24,8 +24,12 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Publish
-      env:
-        HELLO_WORLD: ${{ secrets.hello_world }}
-      run: |
-        env
+        - shell: bash
+          env:
+            HELLO_WORLD: ${{ secrets.hello_world }}
+          run: |
+            echo ${HELLO_WORLD}
+            echo "$$HELLO_WORLD"
+            env
+
 
