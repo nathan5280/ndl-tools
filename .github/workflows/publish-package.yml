@@ -24,7 +24,8 @@ jobs:
         sudo apt update
         sudo apt install curl -y
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-        ::add-path::$PATH:$HOME/.poetry/bin
+        echo $HOME
+        ::add-path::$HOME/.poetry/bin
     - name: Env Check
       run: |
         env
