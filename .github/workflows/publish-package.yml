@@ -28,8 +28,8 @@ jobs:
         echo $HOME
         pwd
         ls -la .
-        ls -la .poetry
-        ::add-path::$HOME/.poetry/bin
+        ls -la /home
+        # ::add-path::$HOME/.poetry/bin
     - name: Env Check
       run: |
         env
