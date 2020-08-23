@@ -28,9 +28,9 @@ jobs:
       env:
         PATH: $PATH:$HOME/.poetry/bin
       run: |
-        env
         ls -la $HOME
-        poetry install --no-dev
+#        env
+#        poetry install --no-dev
 #    - name: Install dependencies
 #      run: |
 #        poetry install --no-dev
