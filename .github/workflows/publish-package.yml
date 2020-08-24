@@ -31,6 +31,8 @@ jobs:
         ls -la .
         echo "/home"
         ls -la /home
+        echo "/home/runner"
+        ls -la /home/runner
         # ::add-path::$HOME/.poetry/bin
     - name: Env Check
       run: |
