@@ -27,7 +27,6 @@ jobs:
         echo $PATH
         ls -la /home/runner/.poetry/bin
         echo "::add-path::/home/runner/.poetry/bin"
-        ::add-path::/home/runner/.poetry/bin
     - name: Env Check
       run: |
         env
