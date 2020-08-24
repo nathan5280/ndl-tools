@@ -27,7 +27,9 @@ jobs:
         echo "HOME"
         echo $HOME
         pwd
+        echo "."
         ls -la .
+        echo "/home"
         ls -la /home
         # ::add-path::$HOME/.poetry/bin
     - name: Env Check
