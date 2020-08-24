@@ -1,8 +1,20 @@
 [tool.poetry]
 name = "ndl-tools"
-version = "0.0.1"
+version = "0.0.3"
 description = "Tools for sorting and diffing nested dictionaries and lists."
 authors = ["Nate Atkins <atkinsnw@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/nathan5280/ndl-tools"
+repository = "https://github.com/nathan5280/ndl-tools"
+keywords = ["api", "testing", "diff"]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Testing :: Unit",
+]
+include = [
+    "LICENSE"
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"

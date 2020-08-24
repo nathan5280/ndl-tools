@@ -25,12 +25,11 @@ jobs:
         sudo apt-get install curl -y
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
         echo "::add-path::${HOME}/.poetry/bin"
-    - name: Build and Publish
+    - name: Build and Publish TestPyPI
       run: |
-        poetry config repositories.testpypi https://test.pypi.org/simple
+        poetry config repositories.testpypi https://test.pypi.org/legacy/
         poetry publish \
           --build \
           --repository testpypi \
           --username ${{ secrets.testpypi_username }} \
           --password ${{ secrets.testpypi_password }}
-        
