@@ -27,8 +27,8 @@ jobs:
         echo "::add-path::${HOME}/.poetry/bin"
     - name: Build and Publish
       run: |
-        poetry publish \\
-          --build \\
-          --repository https://test.pypi.org/simple \\
-          --username ${{ secrets.testpypi_username }} \\
+        poetry publish \
+          --build \
+          --repository https://test.pypi.org/simple \
+          --username ${{ secrets.testpypi_username }} \
           --password ${{ secrets.testpypi_password }}
