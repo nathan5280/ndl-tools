@@ -21,21 +21,12 @@ jobs:
         python-version: 3.7
     - name: Install Poetry
       run: |
-        sudo apt update
-        sudo apt install curl -y
+        sudo apt-get update
+        sudo apt-get install curl -y
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-        echo "HOME"
-        echo $HOME
-        pwd
-        echo "."
-        ls -la .
-        echo "/home"
-        ls -la /home
-        echo "/home/runner"
-        ls -la /home/runner
-        echo $HOME
-        ls -la $HOME
-        # ::add-path::$HOME/.poetry/bin
+        echo $PATH
+        ::add-path::$HOME/.poetry/bin
+        echo $PATH
     - name: Env Check
       run: |
         env
