@@ -4,3 +4,4 @@
 .archive
 dist
 __pycache__
+coverage.xml
