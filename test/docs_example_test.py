@@ -37,11 +37,13 @@ def float_two_precision_match():
 
     # Normalize the 'b' element to 2 decimal places.
     b_selector = ListLastComponentSelector(component_names=["b"])
-    two_float_round_normalizer = FloatRoundNormalizer(
-        places=2, selectors=[b_selector]
-    )
+    two_float_round_normalizer = FloatRoundNormalizer(places=2, selectors=[b_selector])
 
-    result = differ.diff(OBJ_1, OBJ_2, normalizers=[two_float_round_normalizer, one_float_round_normalizer])
+    result = differ.diff(
+        OBJ_1,
+        OBJ_2,
+        normalizers=[two_float_round_normalizer, one_float_round_normalizer],
+    )
     assert result
     print(result.support)
 
@@ -56,7 +58,9 @@ def selector_multiple_match():
 
     a_selector = ListLastComponentSelector(component_names=["a"])
     b_selector = ListLastComponentSelector(component_names=["b"])
-    float_round_normalizer = FloatRoundNormalizer(places=1, selectors=[a_selector, b_selector])
+    float_round_normalizer = FloatRoundNormalizer(
+        places=1, selectors=[a_selector, b_selector]
+    )
 
     result = differ.diff(OBJ_1, OBJ_2, normalizers=[float_round_normalizer])
     assert result

@@ -54,7 +54,9 @@ class Differ:
         :return: True if match.
         """
         if normalizers:
-            normalizers = normalizers if isinstance(normalizers, list) else [normalizers]
+            normalizers = (
+                normalizers if isinstance(normalizers, list) else [normalizers]
+            )
         sorted_left = Sorter.sorted(left, sorters=sorters, normalizers=normalizers)
         sorted_right = Sorter.sorted(right, sorters=sorters, normalizers=normalizers)
         differ = HtmlDiff()

@@ -68,7 +68,7 @@ class BaseNormalizer:
         :param element: Element to normalize.
         :return: Normalized element.
         """
-        pass
+        pass  # pragma: no cover
 
 
 NORMALIZERS = Optional[Union[BaseNormalizer, List[BaseNormalizer]]]
