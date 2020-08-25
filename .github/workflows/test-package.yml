@@ -5,9 +5,11 @@ name: Test
 
 on:
   push:
-    branches-ignore: [ master ]
+    branches-ignore:
+    - master
   pull_request:
-    branches-ignore: [ master ]
+    branches-ignore:
+    - master
 
 jobs:
   test:
