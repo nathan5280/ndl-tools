@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ndl-tools"
-version = "0.0.12"
+version = "0.0.13"
 description = "Tools for sorting and diffing nested dictionaries and lists."
 authors = ["Nate Atkins <atkinsnw@gmail.com>"]
 license = "MIT"
