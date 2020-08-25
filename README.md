@@ -1,5 +1,5 @@
 # ndl-tools
-![CI](https://github.com/nathan5280/ndl-tools/workflows/test-package/badge.svg?event=push)
+[![CI](https://github.com/nathan5280/ndl-tools/workflows/Test/badge.svg)](https://github.com/nathan5280/ndl-tools/actions)
 ![test](https://github.com/nathan5280/ndl-tools/workflows/test/badge.svg)
 [![coverage](https://codecov.io/gh/nathan5280/ndl-tools/master/graph/badge.svg)](https://codecov.io/gh/nathan5280/ndl-tools)
 
