@@ -47,7 +47,7 @@ class BaseSelector:
         :param path: Path to match.
         :return: True if matched.
         """
-        pass
+        pass  # pragma: no cover
 
 
 SELECTORS = Optional[Union[BaseSelector, List[BaseSelector]]]

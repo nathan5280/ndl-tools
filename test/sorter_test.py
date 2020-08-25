@@ -1,12 +1,17 @@
 import json
 from pathlib import Path
+from typing import List
 
 from ndl_tools import (
     NoSortListSorter,
     FloatRoundNormalizer,
     ListLastComponentSelector,
     Sorter,
+    DefaultListSorter,
+    BaseListSorter,
+    SELECTORS,
 )
+from ndl_tools.list_sorter import NotSortedError
 from ndl_tools.sorter import SortedList, SortedMapping
 
 
@@ -82,3 +87,38 @@ LEFT_FLOAT = [1.1234]
 def test_json_encoder_float():
     result = Sorter.sorted(LEFT_FLOAT, normalizers=FloatRoundNormalizer(places=2))
     assert result[0] == 1.12
+
+
+def test_default_sorter():
+    unsorted = {"a": [2, 1], "b": [2, 1]}
+    expected = {"a": [1, 2], "b": [1, 2]}
+    selector = ListLastComponentSelector(component_names=["a"])
+    sorter = DefaultListSorter(selectors=selector)
+    sorted_dict = Sorter.sorted(unsorted, sorters=sorter)
+    assert json.dumps(sorted_dict) == json.dumps(expected)
+
+
+class FilteringNoSortListSorter(BaseListSorter):
+    def __init__(
+        self, *, selectors: SELECTORS = None,
+    ):
+        """
+        Sorter that raises NotSortedError to test BaseListSorter.
+
+        :param selectors: Optional list of selectors to use to select which
+            elements this sort runs.
+        """
+        super().__init__(selectors)
+
+    def _sorted(self, list_: List) -> List:
+        """No Op sort."""
+        raise NotSortedError
+
+
+def test_not_sorted():
+    unsorted = {"a": [2, 1], "b": [2, 1]}
+    expected = {"a": [1, 2], "b": [1, 2]}
+    selector = ListLastComponentSelector(component_names=["a"])
+    sorter = FilteringNoSortListSorter(selectors=selector)
+    sorted_dict = Sorter.sorted(unsorted, sorters=sorter)
+    assert json.dumps(sorted_dict) == json.dumps(expected)
