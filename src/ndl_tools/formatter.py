@@ -9,23 +9,38 @@ from typing import Optional
 ADD_FORMAT_ON = "\033[0;32m"
 SUB_FORMAT_ON = "\033[0:31m"
 CHANGE_FORMAT_ON = "\033[0:34m"
+START_MARKS={
+    "diff_add": ADD_FORMAT_ON,
+    "diff_sub": SUB_FORMAT_ON,
+    "diff_chg": CHANGE_FORMAT_ON,
+}
 FORMAT_OFF = "\033[0m"
 FORMAT_EXTRA_CHARS = len(ADD_FORMAT_ON) + len(FORMAT_OFF)
 
-# ToDo: data really needs to be passed as a list.  Then the process of picking off enough charactors
+# ToDo: data really needs to be passed as a list.  Then the process of picking off enough characters
 #       to format to the correct width will be easier.   It will also allow for the correct
 #       format off character to be added if needed.
 
 
 class Row:
+    """
+    Collect up each of the columns in a list and then format them all together at the end.
+    """
     def __init__(self, max_col_width: int):
+        """
+        Start a new row of output.
+
+        :param max_col_width: Future support for truncating or smart selection of a portion of a line.
+        """
         self.max_col_width = max_col_width
         self.data = list()
 
     def add(self, data: str):
+        """Add the next column to the row."""
         self.data.append(data.replace("\xa0", " ") if data else data)
 
     def finalize(self):
+        """Concatenate the line together with any coloring required.  Truncate to max columns."""
         left = self.data[2] if self.data[2] else ""
         right = self.data[5] if self.data[5] else ""
 
@@ -37,6 +52,11 @@ class Row:
 
 class Formatter(HTMLParser):
     def __init__(self, max_col_width: Optional[int] = 20):
+        """
+        Keep track of all the state variables for parsing each of the rows.
+
+        :param max_col_width: Limit for how wide any line can be.
+        """
         self.max_col_width = max_col_width
         self.in_table = False
         self.done = False
@@ -49,6 +69,9 @@ class Formatter(HTMLParser):
         super().__init__()
 
     def handle_starttag(self, tag, attrs):
+        """
+        Process the start tags to change the state of the parser.
+        """
         if tag == "tbody" and not self.done:
             self.in_table = True
             return
@@ -59,21 +82,14 @@ class Formatter(HTMLParser):
             self.data = None
         if self.looking_for_data and tag == "span":
             class_attr = [value for attr, value in attrs if attr == "class"][0]
-            # ToDo: Get this into a mapping
-            if class_attr == "diff_add":
-                self.match = False
-                self.change_mark = ADD_FORMAT_ON
-            elif class_attr == "diff_sub":
-                self.match = False
-                self.change_mark = SUB_FORMAT_ON
-            elif class_attr == "diff_chg":
-                self.match = False
-                self.change_mark = CHANGE_FORMAT_ON
-            else:
-                raise ValueError(class_attr)
+            self.match=False
+            self.change_mark = START_MARKS[class_attr]
             self.data = "".join([self.data, self.change_mark]) if self.data else self.change_mark
 
     def handle_endtag(self, tag):
+        """
+        Process the end tags to change the state of the parser.
+        """
         if tag == "tbody":
             self.in_table = False
             return
@@ -92,10 +108,6 @@ class Formatter(HTMLParser):
             self.data = "".join([self.data, data]) if self.data else data
 
     def format(self, diff: str):
-        try:
-            with Path(".data/diff.html").open("wt") as fp:
-                fp.write(diff)
-        except FileNotFoundError:
-            pass
+        """Parse and format the html into a colored test format."""
         self.feed(diff)
         return self.match, "\n".join(self.output)
