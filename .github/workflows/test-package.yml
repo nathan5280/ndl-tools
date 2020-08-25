@@ -38,6 +38,7 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH=src
+        mkdir coverage
         pytest --cov=./ --cov-report=xml -sv
     - name: Upload coverage
       uses: codecov/codecov-action@v1
