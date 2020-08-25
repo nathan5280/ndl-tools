@@ -1,5 +1,6 @@
 .idea
 .data
+.coverage
 .archive
 dist
 __pycache__
