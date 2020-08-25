@@ -48,6 +48,11 @@ def test_diff_example_1():
     # Normalize floats to have only 3 significant digits.
     float_normalizer = FloatRoundNormalizer(3)
 
-    result = differ.diff(left_dpath, right_dpath, normalizers=[float_normalizer, date_normalizer], max_col_width=50)
+    result = differ.diff(
+        left_dpath,
+        right_dpath,
+        normalizers=[float_normalizer, date_normalizer],
+        max_col_width=50,
+    )
     assert result
     print(result.support)

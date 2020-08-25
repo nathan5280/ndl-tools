@@ -6,6 +6,7 @@ from ndl_tools import (
     FloatRoundNormalizer,
     TodayDateNormalizer,
     ListLastComponentSelector,
+    StrTodayDateNormalizer,
 )
 
 
@@ -45,3 +46,19 @@ def test_today_date_normalizer():
     data = datetime.date(1999, 1, 1)
     result = normalizer.normalize(data, path, normalizers=[normalizer])
     assert result == datetime.date.today()
+
+
+def test_today_date_normalizer_not_normalized():
+    path = Path("a")
+    normalizer = TodayDateNormalizer()
+    data = 1
+    result = normalizer.normalize(data, path, normalizers=[normalizer])
+    assert result == 1
+
+
+def test_str_today_date_not_iso():
+    path = Path("a")
+    normalizer = StrTodayDateNormalizer()
+    data = "20-1-1"
+    result = normalizer.normalize(data, path, normalizers=[normalizer])
+    assert result == "20-1-1"

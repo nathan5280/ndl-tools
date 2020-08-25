@@ -9,7 +9,7 @@ from typing import Optional
 ADD_FORMAT_ON = "\033[0;32m"
 SUB_FORMAT_ON = "\033[0:31m"
 CHANGE_FORMAT_ON = "\033[0:34m"
-START_MARKS={
+START_MARKS = {
     "diff_add": ADD_FORMAT_ON,
     "diff_sub": SUB_FORMAT_ON,
     "diff_chg": CHANGE_FORMAT_ON,
@@ -26,6 +26,7 @@ class Row:
     """
     Collect up each of the columns in a list and then format them all together at the end.
     """
+
     def __init__(self, max_col_width: int):
         """
         Start a new row of output.
@@ -44,8 +45,16 @@ class Row:
         left = self.data[2] if self.data[2] else ""
         right = self.data[5] if self.data[5] else ""
 
-        left_chars = self.max_col_width + FORMAT_EXTRA_CHARS if FORMAT_OFF in left else self.max_col_width
-        right_chars = self.max_col_width + FORMAT_EXTRA_CHARS if FORMAT_OFF in right else self.max_col_width
+        left_chars = (
+            self.max_col_width + FORMAT_EXTRA_CHARS
+            if FORMAT_OFF in left
+            else self.max_col_width
+        )
+        right_chars = (
+            self.max_col_width + FORMAT_EXTRA_CHARS
+            if FORMAT_OFF in right
+            else self.max_col_width
+        )
 
         return f"{left:{left_chars}} {right:{right_chars}}"
 
@@ -82,9 +91,13 @@ class Formatter(HTMLParser):
             self.data = None
         if self.looking_for_data and tag == "span":
             class_attr = [value for attr, value in attrs if attr == "class"][0]
-            self.match=False
+            self.match = False
             self.change_mark = START_MARKS[class_attr]
-            self.data = "".join([self.data, self.change_mark]) if self.data else self.change_mark
+            self.data = (
+                "".join([self.data, self.change_mark])
+                if self.data
+                else self.change_mark
+            )
 
     def handle_endtag(self, tag):
         """
@@ -101,7 +114,9 @@ class Formatter(HTMLParser):
             self.looking_for_data = False
             self.data = None
         if self.looking_for_data and tag == "span":
-            self.data = "".join([self.data, FORMAT_OFF]) if self.data else self.change_mark
+            self.data = (
+                "".join([self.data, FORMAT_OFF]) if self.data else self.change_mark
+            )
 
     def handle_data(self, data):
         if self.looking_for_data:
