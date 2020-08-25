@@ -79,7 +79,8 @@ class SortedList(list):
         :param normalizers: Normalizers for leaf elements.
         """
         sorted_children = [
-            Sorter._sorted(v, path / f"[{i}]", sorters, normalizers) for i, v in enumerate(list_)
+            Sorter._sorted(v, path / f"[{i}]", sorters, normalizers)
+            for i, v in enumerate(list_)
         ]
         super().__init__(BaseListSorter.sorted(sorted_children, path, sorters))
 
@@ -139,6 +140,8 @@ class Sorter:
         if sorters:
             sorters = sorters if isinstance(sorters, list) else [sorters]
         if normalizers:
-            normalizers = normalizers if isinstance(normalizers, list) else [normalizers]
+            normalizers = (
+                normalizers if isinstance(normalizers, list) else [normalizers]
+            )
 
         return Sorter._sorted(data, Path(), sorters=sorters, normalizers=normalizers)

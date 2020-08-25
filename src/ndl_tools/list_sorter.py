@@ -65,7 +65,7 @@ class BaseListSorter:
         :param list_: List to sort.
         :return: Sorted list.
         """
-        pass
+        pass  # pragma: no cover
 
 
 LIST_SORTERS = Optional[Union[BaseListSorter, List[BaseListSorter]]]
@@ -73,9 +73,7 @@ LIST_SORTERS = Optional[Union[BaseListSorter, List[BaseListSorter]]]
 
 class DefaultListSorter(BaseListSorter):
     def __init__(
-        self,
-        *,
-        selectors: SELECTORS = None,
+        self, *, selectors: SELECTORS = None,
     ):
         """
         Standard Python sorted() sorter.
@@ -92,9 +90,7 @@ class DefaultListSorter(BaseListSorter):
 
 class NoSortListSorter(BaseListSorter):
     def __init__(
-        self,
-        *,
-        selectors: SELECTORS = None,
+        self, *, selectors: SELECTORS = None,
     ):
         """
         No Op sorter.
