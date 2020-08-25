@@ -1,5 +1,9 @@
 # ndl-tools
-![test](https://github.com/nathan5280/ndl-tools/workflows/test/badge.svg)
+[![CI](https://github.com/nathan5280/ndl-tools/workflows/Test/badge.svg)](https://github.com/nathan5280/ndl-tools/actions)
+[![coverage](https://codecov.io/gh/nathan5280/ndl-tools/master/graph/badge.svg)](https://codecov.io/gh/nathan5280/ndl-tools)
+[![pypi](https://img.shields.io/pypi/v/ndl-tools.svg)](https://pypi.python.org/pypi/ndl-tools)
+[![versions](https://img.shields.io/pypi/pyversions/ndl-tools.svg)](https://github.com/nathan5280/ndl-tools)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/nathan5280/ndl-tools/blob/master/LICENSE)
 
 Tools for sorting and diffing nested dictionaries and lists.  
 
