@@ -12,6 +12,9 @@ coverage:
         paths:
           - "src"
 
+ignore:
+  - "test/*"
+
 parsers:
   gcov:
     branch_detection:
