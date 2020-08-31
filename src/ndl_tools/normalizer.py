@@ -151,3 +151,28 @@ class StrTodayDateNormalizer(BaseNormalizer):
             except ValueError:
                 pass
         raise NotNormalizedError()
+
+
+class PathNormalizer(BaseNormalizer):
+    def __init__(
+        self, *, num_components: int, selectors: SELECTORS = None,
+    ):
+        """
+        Overwrite path with only the last N components.
+
+        :param num_components: Number of last components to keep.
+        :param selectors: Optional list of selector to use to select which
+            elements this normalizer runs.
+        """
+        self.num_components = num_components
+        super().__init__(selectors)
+
+    def _normalize(self, element: Any) -> Any:
+        if isinstance(element, str):
+            path = Path(element)
+            num_parts = len(path.parts)
+            start_idx = num_parts - min(len(path.parts), self.num_components)
+            parts_keep = path.parts[start_idx:]
+            path = str(Path("/".join(parts_keep)))
+            return path
+        raise NotNormalizedError()
