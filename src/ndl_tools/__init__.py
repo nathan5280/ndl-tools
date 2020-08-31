@@ -16,5 +16,6 @@ from .selector import (
     ListAnyComponentSelector,
     RegExSelector,
     NegativeSelector,
+    EndsWithSelector,
 )
 from .sorter import Sorter
