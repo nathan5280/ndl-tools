@@ -71,3 +71,11 @@ def test_path():
     data = str(Path("c:/a/b/c"))
     result = normalizer.normalize(data, path, normalizers=[normalizer])
     assert result == "b/c"
+
+
+def test_path_not_normalized():
+    path = Path("a")
+    normalizer = PathNormalizer(num_components=2)
+    data = 5
+    result = normalizer.normalize(data, path, normalizers=[normalizer])
+    assert result == data
