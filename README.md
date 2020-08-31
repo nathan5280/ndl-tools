@@ -131,7 +131,7 @@ You can easily see ways to extend these to support exponential numbers, dates, .
 | FloatRoundNormalizer | Round a floating point number to a set number of places. |
 | TodayDateNormalizer | Set the date to datetime.date.today(). |
 | StrTodayDateNormalizer | Convert a string representation of a date to string representation of today.  Useful if one of the NDLs was read from JSON and the dates weren't converted. |
-| PathNormalizer | Replace path with N last components of path. |
+| PathNormalizer | Replace path with N last components of path. Good when there are absolute paths. |
 
 Have some fun building your own Normalizers.   It only takes a few lines in the __init__() and _normalize() methods.
 
@@ -175,6 +175,7 @@ of your diff code.
 | ListAnyComponentSelector | Match any component in the element path to a list of names.  Good if you want to select a branch and its child elements. |
 | RegExSelector | Match the element path with the RegEx. |
 | NegativeSelector | Inverts the selection of the Selector it wraps. |
+| EndsWithSelector | Match the end of the path. |
 
 # ListSorters
 ListSorters are used to control how lists/sets are sorted.  The are applied using Selectors
