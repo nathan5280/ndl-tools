@@ -5,7 +5,7 @@ from ndl_tools import (
     ListAnyComponentSelector,
     RegExSelector,
     NegativeSelector,
-)
+    EndsWithSelector)
 
 A_TEST_PATH = Path() / "a"
 B_TEST_PATH = Path() / "b"
@@ -54,3 +54,9 @@ def test_negative():
     neg_selector = NegativeSelector(selector=selector)
     assert not neg_selector.match(A_TEST_PATH, [neg_selector])
     assert neg_selector.match(B_TEST_PATH, [neg_selector])
+
+
+def test_endswith():
+    selector = EndsWithSelector("b/c")
+    assert selector.match(ABC_TEST_PATH, [selector])
+    assert not selector.match(AB_TEST_PATH, [selector])
