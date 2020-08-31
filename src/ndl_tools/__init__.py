@@ -7,6 +7,7 @@ from .normalizer import (
     FloatRoundNormalizer,
     TodayDateNormalizer,
     StrTodayDateNormalizer,
+    PathNormalizer,
 )
 from .selector import (
     SELECTORS,

@@ -7,6 +7,7 @@ from ndl_tools import (
     TodayDateNormalizer,
     ListLastComponentSelector,
     StrTodayDateNormalizer,
+    PathNormalizer,
 )
 
 
@@ -62,3 +63,19 @@ def test_str_today_date_not_iso():
     data = "20-1-1"
     result = normalizer.normalize(data, path, normalizers=[normalizer])
     assert result == "20-1-1"
+
+
+def test_path():
+    path = Path("a")
+    normalizer = PathNormalizer(num_components=2)
+    data = str(Path("c:/a/b/c"))
+    result = normalizer.normalize(data, path, normalizers=[normalizer])
+    assert result == "b/c"
+
+
+def test_path_not_normalized():
+    path = Path("a")
+    normalizer = PathNormalizer(num_components=2)
+    data = 5
+    result = normalizer.normalize(data, path, normalizers=[normalizer])
+    assert result == data
