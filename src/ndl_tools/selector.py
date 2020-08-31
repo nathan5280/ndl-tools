@@ -147,3 +147,29 @@ class NegativeSelector(BaseSelector):
         :return: True if the path wasn't matched.
         """
         return not self._selector.match(path, [self._selector])
+
+
+class EndsWithSelector(BaseSelector):
+    """
+    Match end of path.
+    """
+
+    def __init__(self, end_of_path: str):
+        """
+        Selectors that matches end of path.
+
+        :param end_of_path: End of path to match.
+        """
+        self._end_of_path = end_of_path
+        super().__init__()
+
+    def _match(self, path: Path) -> bool:
+        """
+        Match the path's components against end of path string.
+
+        :param path: Path to match.
+        :return: True if matched.
+        """
+        return str(path).endswith(self._end_of_path)
+
+
